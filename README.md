@@ -1,14 +1,36 @@
 # PowerPoint Maker Web App
 
-This project is a migration of the original CLI-based PowerPoint maker to a modern web application.
+This project is a migration of the original powerpoint maker from a terminal script to a web application, allowing users to make powerpoints in seconds.
 
 ## Project Structure
 
 - `backend/`: FastAPI application handling logic and PPT generation.
 - `frontend/`: React + TypeScript + Tailwind CSS application for the user interface.
-- `data/`: Contains the migrated `songs_db.json`.
 
 ## Getting Started
+
+1. Head to [this link](https://web-powerpoint-maker.vercel.app/).
+2. Fill in the service details (Date, Speaker, Topic).
+3. Search for songs in the middle column and add them to the "Worship" or "Response" sets.
+4. Enter the Bible reference.
+5. If you wish to have translated lyrics for your congregation, tick the `translate lyrics` button for songs and type in a supported language.
+6. Check if all inputs are correct.
+7. Click "Generate PPTX" to save your finished presentation.
+
+## How to add songs
+
+1. To add songs, click the `new song` button on the [website](https://web-powerpoint-maker.vercel.app/).
+2. Add lyrics to the song with their sections.
+3. This will be stored in the global database for all users to access.
+
+## How to edit songs
+
+1. On an existing song, click the `edit` button underneath the song title.
+2. Edit the song's properties as necessary.
+
+## Running locally
+If you wish to run this locally, follow the instructions below.
+
 
 ### 1. Backend Setup
 
@@ -55,7 +77,5 @@ This project is a migration of the original CLI-based PowerPoint maker to a mode
 5. Click "Generate PPTX" to download your finished presentation.
 
 ## Future Enhancements
-- [ ] Connect to MongoDB Atlas for persistent storage.
-- [ ] Add ability to edit song lyrics directly in the UI.
-- [ ] Drag and drop reordering for songs.
-- [ ] Custom announcement slides.
+- Drag and drop reordering for songs.
+- Custom announcement slides.
