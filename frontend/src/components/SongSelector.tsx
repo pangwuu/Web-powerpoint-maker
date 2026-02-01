@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Pencil, Trash2, ArrowDownAZ, ArrowUpZA, Loader2 } from 'lucide-react';
 import { type Song } from '../api';
 
@@ -33,6 +33,29 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   worshipSongIds,
   responseSongIds,
 }) => {
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    if (isLoadingSongs) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoadingSongs]);
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px]">
       <div className="flex justify-between items-center mb-4">
@@ -67,11 +90,13 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
           className="w-full pl-10 p-2 border rounded-md" 
         />
       </div>
+
       <div className="overflow-y-auto flex-1 space-y-3 pr-2">
         {isLoadingSongs ? (
           <div className="flex flex-col items-center justify-center h-32 text-gray-500">
             <Loader2 size={32} className="animate-spin mb-2" />
-            <p>Loading songs...</p>
+            <p>Loading songs... {formatTime(elapsedTime)}</p>
+            <p className="text-xs mt-1 italic text-gray-400">This could take up to a minute or two.</p>
           </div>
         ) : (
           filteredSongs.map((song, i) => {
