@@ -80,5 +80,11 @@ async def generate_ppt(request: GenerateRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/health")
-def health_check():
-    return {"status": "ok"}
+async def health_check():
+    try:
+        # Ping the DB to check connection
+        await db.command("ping")
+        return {"status": "ok", "database": "connected"}
+    except Exception as e:
+        print(f"Health check failed: {e}")
+        return {"status": "error", "database": str(e)}
