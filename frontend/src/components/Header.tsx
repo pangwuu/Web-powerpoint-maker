@@ -13,6 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Web PowerPoint Maker</h1>
         <p className="text-gray-600">Create church service slides in seconds</p>
+        <p>This is designed for use in BCCC. If you're another church, feel free to use it too but be aware some slides are currently hardcoded</p>
       </div>
       <div className="flex gap-2">
         {isGenerating && (

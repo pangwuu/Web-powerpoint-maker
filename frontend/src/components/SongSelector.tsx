@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
 import { type Song } from '../api';
 
 interface SongSelectorProps {
@@ -11,6 +11,8 @@ interface SongSelectorProps {
   onAddSong: () => void;
   onEditSong: (song: Song) => void;
   onDeleteSong: (song: Song) => void;
+  sortOrder: 'asc' | 'desc';
+  onToggleSort: () => void;
 }
 
 export const SongSelector: React.FC<SongSelectorProps> = ({
@@ -22,6 +24,8 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   onAddSong,
   onEditSong,
   onDeleteSong,
+  sortOrder,
+  onToggleSort,
 }) => {
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px]">
@@ -30,12 +34,21 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
           <Search size={20} className="text-purple-600" />
           Find Songs
         </h2>
-        <button
-          onClick={onAddSong}
-          className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition-colors"
-        >
-          <Plus size={16} /> New Song
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={onToggleSort}
+            className="flex items-center justify-center w-8 h-8 bg-gray-100 text-gray-600 rounded-md hover:bg-gray-200 transition-colors"
+            title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+          >
+            {sortOrder === 'asc' ? <ArrowDownAZ size={18} /> : <ArrowUpZA size={18} />}
+          </button>
+          <button
+            onClick={onAddSong}
+            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-md text-sm hover:bg-green-700 transition-colors"
+          >
+            <Plus size={16} /> New Song
+          </button>
+        </div>
       </div>
 
       <div className="relative mb-4">

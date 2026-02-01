@@ -12,6 +12,7 @@ import { SongEditor } from './components/SongEditor';
 const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [search, setSearch] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [responseSongs, setResponseSongs] = useState<Song[]>([]);
   
@@ -40,9 +41,21 @@ const App: React.FC = () => {
     api.getSongs().then(setSongs).catch(console.error);
   };
 
-  const filteredSongs = songs.filter(s => 
-    s.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredSongs = songs
+    .filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => {
+      const titleA = a.title.toLowerCase();
+      const titleB = b.title.toLowerCase();
+      if (sortOrder === 'asc') {
+        return titleA.localeCompare(titleB);
+      } else {
+        return titleB.localeCompare(titleA);
+      }
+    });
+
+  const handleToggleSort = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+  };
 
   const handleCancel = () => {
     if (abortControllerRef.current) {
@@ -165,6 +178,8 @@ const App: React.FC = () => {
               onAddSong={handleAddSongClick}
               onEditSong={handleEditSongClick}
               onDeleteSong={handleDeleteSongClick}
+              sortOrder={sortOrder}
+              onToggleSort={handleToggleSort}
             />
           </div>
 
