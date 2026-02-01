@@ -186,7 +186,8 @@ const App: React.FC = () => {
               sortOrder={sortOrder}
               onToggleSort={handleToggleSort}
               isLoadingSongs={isLoadingSongs}
-              selectedSongIds={[...selectedSongs, ...responseSongs].map(s => s.id).filter(Boolean) as string[]}
+              worshipSongIds={selectedSongs.map(s => s.id).filter(Boolean) as string[]}
+              responseSongIds={responseSongs.map(s => s.id).filter(Boolean) as string[]}
             />
           </div>
 

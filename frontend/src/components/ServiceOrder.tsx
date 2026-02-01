@@ -1,5 +1,5 @@
-import React from 'react';
-import { Music, BookOpen, Trash2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Music, BookOpen, Trash2, GripVertical } from 'lucide-react';
 import { type Song } from '../api';
 
 interface ServiceOrderProps {
@@ -17,6 +17,60 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   setResponseSongs,
   bibleRef,
 }) => {
+  const [draggedIndex, setDraggedIndex] = useState<{ index: number; type: 'worship' | 'response' } | null>(null);
+
+  const handleDragStart = (index: number, type: 'worship' | 'response') => {
+    setDraggedIndex({ index, type });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary to allow dropping
+  };
+
+  const handleDrop = (dropIndex: number, type: 'worship' | 'response') => {
+    if (!draggedIndex || draggedIndex.type !== type) return;
+
+    const list = type === 'worship' ? [...worshipSongs] : [...responseSongs];
+    const setList = type === 'worship' ? setWorshipSongs : setResponseSongs;
+
+    const [draggedItem] = list.splice(draggedIndex.index, 1);
+    list.splice(dropIndex, 0, draggedItem);
+
+    setList(list);
+    setDraggedIndex(null);
+  };
+
+  const renderList = (songs: Song[], type: 'worship' | 'response', removeSong: (idx: number) => void) => (
+    <div className="space-y-2">
+      {songs.length === 0 && <p className="text-sm text-gray-400 italic">No songs added</p>}
+      {songs.map((song, i) => (
+        <div
+          key={`${song.title}-${i}`}
+          draggable
+          onDragStart={() => handleDragStart(i, type)}
+          onDragOver={handleDragOver}
+          onDrop={() => handleDrop(i, type)}
+          className={`flex items-center justify-between p-2 rounded-md border cursor-move transition-colors ${
+            type === 'worship' 
+              ? 'bg-blue-50 text-blue-800 border-blue-100 hover:bg-blue-100' 
+              : 'bg-purple-50 text-purple-800 border-purple-100 hover:bg-purple-100'
+          } ${draggedIndex?.index === i && draggedIndex.type === type ? 'opacity-50' : ''}`}
+        >
+          <div className="flex items-center gap-2 overflow-hidden">
+            <GripVertical size={14} className="text-gray-400 shrink-0" />
+            <span className="truncate">{song.title}</span>
+          </div>
+          <button 
+            onClick={(e) => { e.stopPropagation(); removeSong(i); }}
+            className="p-1 hover:bg-white rounded-full transition-colors"
+          >
+            <Trash2 size={16} className="text-red-400 hover:text-red-600" />
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -27,17 +81,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
       <div className="space-y-4">
         <div>
           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Worship Set</h3>
-          <div className="space-y-2">
-            {worshipSongs.length === 0 && <p className="text-sm text-gray-400 italic">No songs added</p>}
-            {worshipSongs.map((song, i) => (
-              <div key={i} className="flex items-center justify-between p-2 bg-blue-50 text-blue-800 rounded-md border border-blue-100">
-                <span className="truncate">{song.title}</span>
-                <button onClick={() => setWorshipSongs(worshipSongs.filter((_, idx) => idx !== i))}>
-                  <Trash2 size={16} className="text-red-400 hover:text-red-600" />
-                </button>
-              </div>
-            ))}
-          </div>
+          {renderList(worshipSongs, 'worship', (idx) => setWorshipSongs(worshipSongs.filter((_, i) => i !== idx)))}
         </div>
 
         <div className="py-2 border-y border-dashed border-gray-200">
@@ -48,17 +92,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
 
         <div>
           <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Response</h3>
-          <div className="space-y-2">
-            {responseSongs.length === 0 && <p className="text-sm text-gray-400 italic">No songs added</p>}
-            {responseSongs.map((song, i) => (
-              <div key={i} className="flex items-center justify-between p-2 bg-purple-50 text-purple-800 rounded-md border border-purple-100">
-                <span className="truncate">{song.title}</span>
-                <button onClick={() => setResponseSongs(responseSongs.filter((_, idx) => idx !== i))}>
-                  <Trash2 size={16} className="text-red-400 hover:text-red-600" />
-                </button>
-              </div>
-            ))}
-          </div>
+          {renderList(responseSongs, 'response', (idx) => setResponseSongs(responseSongs.filter((_, i) => i !== idx)))}
         </div>
       </div>
     </section>

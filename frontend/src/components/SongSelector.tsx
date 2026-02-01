@@ -14,7 +14,8 @@ interface SongSelectorProps {
   sortOrder: 'asc' | 'desc';
   onToggleSort: () => void;
   isLoadingSongs: boolean;
-  selectedSongIds: string[];
+  worshipSongIds: string[];
+  responseSongIds: string[];
 }
 
 export const SongSelector: React.FC<SongSelectorProps> = ({
@@ -29,7 +30,8 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   sortOrder,
   onToggleSort,
   isLoadingSongs,
-  selectedSongIds,
+  worshipSongIds,
+  responseSongIds,
 }) => {
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px]">
@@ -73,16 +75,27 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
           </div>
         ) : (
           filteredSongs.map((song, i) => {
-            const isSelected = song.id && selectedSongIds.includes(song.id);
+            const isWorship = song.id && worshipSongIds.includes(song.id);
+            const isResponse = song.id && responseSongIds.includes(song.id);
+            
+            let containerClass = "bg-gray-50 border-transparent hover:bg-gray-100";
+            let textClass = "text-gray-900";
+
+            if (isResponse) {
+                containerClass = "bg-purple-50 border-purple-200 shadow-sm";
+                textClass = "text-purple-800";
+            } else if (isWorship) {
+                containerClass = "bg-blue-50 border-blue-200 shadow-sm";
+                textClass = "text-blue-800";
+            }
+
             return (
               <div 
                 key={`${song.title}-${i}`} 
-                className={`flex items-center justify-between p-3 rounded-lg transition-colors group border ${
-                  isSelected ? 'bg-blue-50 border-blue-200 shadow-sm' : 'bg-gray-50 border-transparent hover:bg-gray-100'
-                }`}
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors group border ${containerClass}`}
               >
                 <div className="flex-1 min-w-0 mr-2">
-                  <div className={`font-medium ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>{song.title}</div>
+                  <div className={`font-medium ${textClass}`}>{song.title}</div>
                   <div className="flex gap-2 text-xs text-gray-400 opacity-80 group-hover:opacity-100 transition-opacity">
                      <button onClick={() => onEditSong(song)} className="hover:text-blue-600 flex items-center gap-1">
                         <Pencil size={12} /> Edit
