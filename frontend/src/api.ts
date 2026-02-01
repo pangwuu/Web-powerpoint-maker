@@ -54,9 +54,10 @@ export const api = {
     return response.data;
   },
   
-  generatePPT: async (data: GenerateRequest) => {
+  generatePPT: async (data: GenerateRequest, signal?: AbortSignal) => {
     const response = await axios.post(`${API_BASE_URL}/generate`, data, {
       responseType: 'blob',
+      signal,
     });
     
     // Create a download link

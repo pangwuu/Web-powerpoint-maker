@@ -25,6 +25,9 @@ const App: React.FC = () => {
   const [translate, setTranslate] = useState(false);
   const [language, setLanguage] = useState('Chinese (Simplified)');
 
+  // Abort Controller for cancelling requests
+  const abortControllerRef = React.useRef<AbortController | null>(null);
+
   // Song Editor State
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
@@ -41,8 +44,18 @@ const App: React.FC = () => {
     s.title.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleCancel = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      setIsGenerating(false);
+    }
+  };
+
   const handleGenerate = async () => {
     setIsGenerating(true);
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    
     try {
       await api.generatePPT({
         date,
@@ -55,12 +68,17 @@ const App: React.FC = () => {
         template_name: 'medium',
         translate,
         language
-      });
-    } catch (error) {
-      console.error('Generation failed', error);
-      alert('Failed to generate PowerPoint. Make sure the backend is running.');
+      }, abortControllerRef.current.signal);
+    } catch (error: any) {
+      if (error.name === 'CanceledError' || error.code === 'ERR_CANCELED') {
+        console.log('Generation cancelled');
+      } else {
+        console.error('Generation failed', error);
+        alert('Failed to generate PowerPoint. Make sure the backend is running.');
+      }
     } finally {
       setIsGenerating(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -109,7 +127,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-8 font-sans">
       <div className="max-w-6xl mx-auto">
-        <Header onGenerate={handleGenerate} isGenerating={isGenerating} />
+        <Header onGenerate={handleGenerate} onCancel={handleCancel} isGenerating={isGenerating} />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Service Details */}
