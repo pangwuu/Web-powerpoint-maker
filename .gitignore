@@ -1,0 +1,7 @@
+/backend/assets/Mingle
+/backend/assets/Worship
+/backend/assets/Bible
+/backend/assets/Phone
+**/.env
+/backend/venv
+/backend/app/__pycache__
