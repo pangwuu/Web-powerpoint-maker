@@ -32,13 +32,18 @@ const App: React.FC = () => {
   // Song Editor State
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
+  const [isLoadingSongs, setIsLoadingSongs] = useState(false);
 
   useEffect(() => {
     refreshSongs();
   }, []);
 
   const refreshSongs = () => {
-    api.getSongs().then(setSongs).catch(console.error);
+    setIsLoadingSongs(true);
+    api.getSongs()
+      .then(setSongs)
+      .catch(console.error)
+      .finally(() => setIsLoadingSongs(false));
   };
 
   const filteredSongs = songs
@@ -180,6 +185,8 @@ const App: React.FC = () => {
               onDeleteSong={handleDeleteSongClick}
               sortOrder={sortOrder}
               onToggleSort={handleToggleSort}
+              isLoadingSongs={isLoadingSongs}
+              selectedSongIds={[...selectedSongs, ...responseSongs].map(s => s.id).filter(Boolean) as string[]}
             />
           </div>
 

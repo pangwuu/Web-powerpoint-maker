@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Plus, Pencil, Trash2, ArrowDownAZ, ArrowUpZA } from 'lucide-react';
+import { Search, Plus, Pencil, Trash2, ArrowDownAZ, ArrowUpZA, Loader2 } from 'lucide-react';
 import { type Song } from '../api';
 
 interface SongSelectorProps {
@@ -13,6 +13,8 @@ interface SongSelectorProps {
   onDeleteSong: (song: Song) => void;
   sortOrder: 'asc' | 'desc';
   onToggleSort: () => void;
+  isLoadingSongs: boolean;
+  selectedSongIds: string[];
 }
 
 export const SongSelector: React.FC<SongSelectorProps> = ({
@@ -26,6 +28,8 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   onDeleteSong,
   sortOrder,
   onToggleSort,
+  isLoadingSongs,
+  selectedSongIds,
 }) => {
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px]">
@@ -62,36 +66,51 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
         />
       </div>
       <div className="overflow-y-auto flex-1 space-y-3 pr-2">
-        {filteredSongs.map((song, i) => (
-          <div key={`${song.title}-${i}`} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors group">
-            <div className="flex-1 min-w-0 mr-2">
-              <div className="font-medium">{song.title}</div>
-              <div className="flex gap-2 text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                 <button onClick={() => onEditSong(song)} className="hover:text-blue-600 flex items-center gap-1">
-                    <Pencil size={12} /> Edit
-                 </button>
-                 <button onClick={() => onDeleteSong(song)} className="hover:text-red-600 flex items-center gap-1">
-                    <Trash2 size={12} /> Delete
-                 </button>
-              </div>
-            </div>
-            
-            <div className="flex opacity-0 group-hover:opacity-100 transition-opacity shrink-0 flex flex-col space-y-2">
-              <button 
-                onClick={() => onAddWorship(song)}
-                className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs px-2"
-              >
-                Worship
-              </button>
-              <button 
-                onClick={() => onAddResponse(song)}
-                className="p-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-xs px-2"
-              >
-                Response
-              </button>
-            </div>
+        {isLoadingSongs ? (
+          <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+            <Loader2 size={32} className="animate-spin mb-2" />
+            <p>Loading songs...</p>
           </div>
-        ))}
+        ) : (
+          filteredSongs.map((song, i) => {
+            const isSelected = song.id && selectedSongIds.includes(song.id);
+            return (
+              <div 
+                key={`${song.title}-${i}`} 
+                className={`flex items-center justify-between p-3 rounded-lg transition-colors group border ${
+                  isSelected ? 'bg-blue-50 border-blue-200 shadow-sm' : 'bg-gray-50 border-transparent hover:bg-gray-100'
+                }`}
+              >
+                <div className="flex-1 min-w-0 mr-2">
+                  <div className={`font-medium ${isSelected ? 'text-blue-800' : 'text-gray-900'}`}>{song.title}</div>
+                  <div className="flex gap-2 text-xs text-gray-400 opacity-80 group-hover:opacity-100 transition-opacity">
+                     <button onClick={() => onEditSong(song)} className="hover:text-blue-600 flex items-center gap-1">
+                        <Pencil size={12} /> Edit
+                     </button>
+                     <button onClick={() => onDeleteSong(song)} className="hover:text-red-600 flex items-center gap-1">
+                        <Trash2 size={12} /> Delete
+                     </button>
+                  </div>
+                </div>
+                
+                <div className="flex opacity-80 group-hover:opacity-100 transition-opacity shrink-0 flex flex-col space-y-2">
+                  <button 
+                    onClick={() => onAddWorship(song)}
+                    className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs px-2"
+                  >
+                    Worship
+                  </button>
+                  <button 
+                    onClick={() => onAddResponse(song)}
+                    className="p-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-xs px-2"
+                  >
+                    Response
+                  </button>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </section>
   );
