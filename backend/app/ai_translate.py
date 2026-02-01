@@ -1,4 +1,4 @@
-import google.generativeai as genai
+from google import genai
 import os
 from dotenv import load_dotenv
 from functools import cache
@@ -14,15 +14,8 @@ def translate_with_gemini(text: str, translated_language: str,  start_language: 
     # Also load from default locations as fallback
     load_dotenv()
 
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key:
-        print("GEMINI_API_KEY not found. Returning original text.")
-        return text
-
-    genai.configure(api_key=api_key)
-
-    # Change model if needed
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    # uses the same one in the .env file
+    client = genai.Client()
 
     prompt = f'''
 You are a song translator. For the song below, please translate the song line by line into {translated_language}.
@@ -44,8 +37,10 @@ DO NOT PROVIDE ANY OTHER OUTPUTS OTHER THAN THE SONG LINES IN THE FORMAT ABOVE
 '''
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(prompt)
         return response.text
     except Exception as e:
         print(f"Translation failed: {e}")
         return text
+
+

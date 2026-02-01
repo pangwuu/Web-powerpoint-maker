@@ -5,9 +5,11 @@ motor
 pydantic
 python-dotenv
 meaningless
-google-generativeai
+google-genai
 deep-translator
 fuzzywuzzy
 python-Levenshtein
 pandas
 lxml
+pymongo[srv]
+certifi

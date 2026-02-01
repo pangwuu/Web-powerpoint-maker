@@ -3,7 +3,7 @@ import re
 from meaningless import WebExtractor
 import meaningless
 from meaningless.utilities.exceptions import InvalidSearchError
-import google.generativeai as genai
+from google import genai
 import os
 from dotenv import load_dotenv
 from pathlib import Path
@@ -20,8 +20,7 @@ load_dotenv()
 
 def bible_passage_auto(verse_reference: str, output_translation="NIV", verse_max=2, newlines_max=4):
     '''
-    Obtains a bible passage using the meaningless extractor.
-    The passages are split into parts, which have their size restricted by a number of verses or newlines
+    Obtains a bible passage using the meaningless extractor with a robust GenAI fallback.
     '''
     
     if not verse_reference or verse_reference.lower().strip() == "n":
@@ -29,29 +28,36 @@ def bible_passage_auto(verse_reference: str, output_translation="NIV", verse_max
 
     try:
         extractor = WebExtractor(translation=output_translation, output_as_list=True)
-        # remove the edition
         verse_reference = re.sub(r'\([^)]*\)', '', verse_reference).strip().title()
         verse_text = extractor.search(verse_reference)
     except (InvalidSearchError, Exception) as e:
-        # Fallback to GenAI if meaningless fails or invalid search
         print(f"Meaningless failed: {e}. Trying GenAI...")
         
-        api_key = os.environ.get("GEMINI_API_KEY")
-        if not api_key:
-            print(f"No GEMINI_API_KEY found. Checked {env_path} and environment. Returning empty.")
-            return []
+        client = genai.Client()
 
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-2.5-flash')
-        prompt = f'You are a biblical scholar. Return ONLY the text of the bible passage {verse_reference} ({output_translation}). Do not include the reference title, just the verses. If not found, return nothing.'
+        # UPDATED PROMPT: Explicitly request newlines and verse numbers for easier parsing
+        prompt = (
+            f"Return the text of the bible passage {verse_reference} ({output_translation}). "
+            "Format the output so each verse is on a new line starting with its verse number. "
+            "Do not include the reference title or any introductory text. If not found, return nothing."
+        )
         
         try:
-            response = model.generate_content(prompt)
-            # GenAI might return a block of text, we might need to split it if it's not a list.
-            # meaningful returns a list of strings (verses).
-            # We'll just treat the whole block as one item for now or split by newlines.
-            verse_text = response.text.split('\n')
-            verse_text = [v for v in verse_text if v.strip()]
+            response = client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+
+            print(response)
+            
+            # Use regex to split by verse numbers (e.g., '1 ', '2 ') in case \n is missing
+            raw_text = response.text.strip()
+            # This regex splits by "digit followed by space", keeping the digit as part of the verse
+            # 1. Split by verse numbers at the start of lines
+            raw_verses = re.split(r'\n(?=\d+\s)', raw_text)
+            # 2. Strip the leading numbers from each verse            
+            verse_text = [re.sub(r'^\d+\s+', '', v).strip() for v in raw_verses if v.strip()]            
+            
         except Exception as gen_e:
             print(f"GenAI failed: {gen_e}")
             return []
@@ -65,19 +71,19 @@ def bible_passage_auto(verse_reference: str, output_translation="NIV", verse_max
     parts = []
 
     for i, verse in enumerate(verse_text):
-        part = f"{part}{verse}"
+        # FIX: Added a newline separator between verses so they don't run together
+        part = f"{part}\n{verse}".strip() if part else verse
 
-        # This ensures each slide has a consistent number of verses
         verse_count = (verse_count + 1) % verse_max
         verse_remaining -= 1
         
+        # Check constraints for splitting into a new "part" (slide)
         if verse_count <= 0 or verse_remaining <= 0 or part.count("\n") >= newlines_max:
             verse_count = 0 
             parts.append(part)
             part = ""
 
     return parts
-
 def get_correct_copyright_message(bible_version: str) -> str:
     match bible_version:
         case "NIV":

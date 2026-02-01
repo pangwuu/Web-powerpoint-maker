@@ -287,25 +287,33 @@ def append_song(prs, song: Song, title_size, font_size, translate: bool = False,
     
     # Lyrics Slides
     for section in song.sections:
-        content = section.content
-        if translate:
-            # Try AI translate first if configured, else Google
-            # For simplicity, let's use the basic translate per line here or standard
-            # We can use the AI translate logic if we want high quality
-            lines = content.split('\n')
-            translated_lines = []
-            for line in lines:
-                if line.strip():
+        original_content = section.content.strip()
+        if not original_content:
+            continue
+
+        # Split into lines
+        lines = [line.strip() for line in original_content.split('\n') if line.strip()]
+        
+        # Chunk lines into groups of 4
+        chunk_size = 4
+        chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
+        
+        for chunk in chunks:
+            if translate:
+                chunk_size = 2
+                # Interleave English and Translated lines
+                combined_lines = []
+                for line in chunk:
                     t_line = translate_text(line, language)
-                    translated_lines.append(f"{line}\n{t_line}")
-                else:
-                    translated_lines.append(line)
-            content = "\n".join(translated_lines)
-            
-            # Reduce font for translated slides
-            create_text_slide(content, prs, font_size * 0.8)
-        else:
-            create_text_slide(content, prs, font_size)
+                    combined_lines.append(line)
+                    combined_lines.append(t_line)
+                
+                final_text = "\n".join(combined_lines)
+                # Reduce font for translated slides (more text)
+                create_text_slide(final_text, prs, font_size * 0.9) 
+            else:
+                final_text = "\n".join(chunk)
+                create_text_slide(final_text, prs, font_size)
 
     return prs
 
@@ -386,7 +394,7 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
     create_title_slide('Prayer Points', '', prs, fonts['title'])
     
     # 8. Mingle
-    add_title_with_image_on_right(prs, 'Mingle Time!', 'Mingle', fonts['title'] - 10)
+    create_title_slide('Mingle time!', '', prs, fonts['title'])
 
     # Output
     output = io.BytesIO()
