@@ -10,16 +10,21 @@ export interface SongSection {
 export interface Song {
   id?: string;
   title: string;
+  artist?: string;
   ccli_number?: string;
   sections: SongSection[];
+}
+
+export interface BibleReading {
+  reference: string;
+  version: string;
 }
 
 export interface GenerateRequest {
   date: string;
   speaker: string;
   topic: string;
-  bible_reference: string;
-  bible_version: string;
+  bible_readings: BibleReading[];
   songs: Song[];
   response_songs: Song[];
   template_name: string;

@@ -11,16 +11,19 @@ interface SongEditorProps {
 
 export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, isOpen }) => {
   const [title, setTitle] = useState('');
+  const [artist, setArtist] = useState('');
   const [ccliNumber, setCcliNumber] = useState('');
   const [sections, setSections] = useState<SongSection[]>([]);
 
   useEffect(() => {
     if (song) {
       setTitle(song.title);
+      setArtist(song.artist || '');
       setCcliNumber(song.ccli_number || '');
       setSections(song.sections);
     } else {
       setTitle('');
+      setArtist('');
       setCcliNumber('');
       setSections([{ label: 'Verse 1', content: '' }]);
     }
@@ -47,6 +50,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
     onSave({
       id: song?.id,
       title,
+      artist,
       ccli_number: ccliNumber,
       sections,
     });
@@ -66,7 +70,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Song Title</label>
               <input
                 type="text"
@@ -75,6 +79,16 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full p-2 border rounded-md"
                 placeholder="e.g. Amazing Grace"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Artist</label>
+              <input
+                type="text"
+                value={artist}
+                onChange={(e) => setArtist(e.target.value)}
+                className="w-full p-2 border rounded-md"
+                placeholder="e.g. Chris Tomlin"
               />
             </div>
             <div>

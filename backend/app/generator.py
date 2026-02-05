@@ -265,8 +265,29 @@ def create_offering_slide(prs: Presentation, tithing_heading_size: int, tithing_
 @cache
 def translate_text(text: str, language: str = 'Mandarin Chinese') -> str:
     lang_map = {
-        "mandarin chinese": "zh-CN", "chinese (simplified)": "zh-CN",
-        "spanish": "es", "hindi": "hi", "arabic": "ar"
+        "afrikaans": "af", "albanian": "sq", "amharic": "am", "arabic": "ar", "armenian": "hy", 
+        "azerbaijani": "az", "basque": "eu", "belarusian": "be", "bengali": "bn", "bosnian": "bs", 
+        "bulgarian": "bg", "catalan": "ca", "cebuano": "ceb", "chichewa": "ny", 
+        "chinese (simplified)": "zh-CN", "mandarin chinese": "zh-CN", "chinese (traditional)": "zh-TW", 
+        "corsican": "co", "croatian": "hr", "czech": "cs", "danish": "da", "dutch": "nl", 
+        "english": "en", "esperanto": "eo", "estonian": "et", "filipino": "tl", "finnish": "fi", 
+        "french": "fr", "frisian": "fy", "galician": "gl", "georgian": "ka", "german": "de", 
+        "greek": "el", "gujarati": "gu", "haitian creole": "ht", "hausa": "ha", "hawaiian": "haw", 
+        "hebrew": "iw", "hindi": "hi", "hmong": "hmn", "hungarian": "hu", "icelandic": "is", 
+        "igbo": "ig", "indonesian": "id", "irish": "ga", "italian": "it", "japanese": "ja", 
+        "javanese": "jw", "kannada": "kn", "kazakh": "kk", "khmer": "km", "korean": "ko", 
+        "kurdish (kurmanji)": "ku", "kyrgyz": "ky", "lao": "lo", "latin": "la", "latvian": "lv", 
+        "lithuanian": "lt", "luxembourgish": "lb", "macedonian": "mk", "malagasy": "mg", 
+        "malay": "ms", "malayalam": "ml", "maltese": "mt", "maori": "mi", "marathi": "mr", 
+        "mongolian": "mn", "myanmar (burmese)": "my", "nepali": "ne", "norwegian": "no", 
+        "odia": "or", "pashto": "ps", "persian": "fa", "polish": "pl", "portuguese": "pt", 
+        "punjabi": "pa", "romanian": "ro", "russian": "ru", "samoan": "sm", "scots gaelic": "gd", 
+        "serbian": "sr", "sesotho": "st", "shona": "sn", "sindhi": "sd", "sinhala": "si", 
+        "slovak": "sk", "slovenian": "sl", "somali": "so", "spanish": "es", "sundanese": "su", 
+        "swahili": "sw", "swedish": "sv", "tajik": "tg", "tamil": "ta", "telugu": "te", 
+        "thai": "th", "turkish": "tr", "ukrainian": "uk", "urdu": "ur", "uyghur": "ug", 
+        "uzbek": "uz", "vietnamese": "vi", "welsh": "cy", "xhosa": "xh", "yiddish": "yi", 
+        "yoruba": "yo", "zulu": "zu"
     }
     code = lang_map.get(language.lower(), "zh-CN")
     try:
@@ -369,17 +390,23 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
     # We will use our bible.py logic.
     from .bible import bible_passage_auto, get_correct_copyright_message
     
-    verse_parts = bible_passage_auto(f"{request.bible_reference} ({request.bible_version})")
-    
-    for part in verse_parts:
-         create_title_and_text_slide(f"{request.bible_reference} ({request.bible_version})", part, prs, fonts['title'], fonts['bible'])
+    # Track used versions for copyright
+    used_versions = set()
+
+    for reading in request.bible_readings:
+        verse_parts = bible_passage_auto(f"{reading.reference} ({reading.version})")
+        used_versions.add(reading.version)
+        
+        for part in verse_parts:
+             create_title_and_text_slide(f"{reading.reference} ({reading.version})", part, prs, fonts['title'], fonts['bible'])
     
     # Copyright
-    create_title_and_text_slide("", get_correct_copyright_message(request.bible_version), prs, 10, 10)
+    for version in used_versions:
+        create_title_and_text_slide("", get_correct_copyright_message(version), prs, 10, 10)
 
     # 5. Bulletin (Backfill slide 0)
     # Collect data
-    verse_refs = [request.bible_reference]
+    verse_refs = [f"{r.reference} ({r.version})" for r in request.bible_readings]
     response_song_names = [s.title for s in request.response_songs]
     
     create_bulletin_slide(prs.slides[0], prs, request.date, song_names, verse_refs, response_song_names, request.speaker, request.topic)

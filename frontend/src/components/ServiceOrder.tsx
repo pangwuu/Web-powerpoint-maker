@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Music, BookOpen, Trash2, GripVertical } from 'lucide-react';
-import { type Song } from '../api';
+import { type Song, type BibleReading } from '../api';
 
 interface ServiceOrderProps {
   worshipSongs: Song[];
   setWorshipSongs: (songs: Song[]) => void;
   responseSongs: Song[];
   setResponseSongs: (songs: Song[]) => void;
-  bibleRef: string;
+  readings: BibleReading[];
 }
 
 export const ServiceOrder: React.FC<ServiceOrderProps> = ({
@@ -15,7 +15,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   setWorshipSongs,
   responseSongs,
   setResponseSongs,
-  bibleRef,
+  readings,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<{ index: number; type: 'worship' | 'response' } | null>(null);
 
@@ -71,6 +71,11 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
     </div>
   );
 
+  const formatReadings = () => {
+    if (readings.length === 0) return 'TBA';
+    return readings.map(r => r.reference ? `${r.reference} (${r.version})` : '').filter(Boolean).join('; ');
+  };
+
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -86,7 +91,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
 
         <div className="py-2 border-y border-dashed border-gray-200">
           <p className="text-sm font-semibold text-gray-600 flex items-center gap-2">
-            <BookOpen size={14} /> Bible Reading: {bibleRef || 'TBA'}
+            <BookOpen size={14} /> Bible Reading: {formatReadings() || 'TBA'}
           </p>
         </div>
 

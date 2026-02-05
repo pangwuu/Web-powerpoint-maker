@@ -8,6 +8,7 @@ class SongSection(BaseModel):
 class Song(BaseModel):
     id: Optional[str] = None
     title: str
+    artist: Optional[str] = None
     ccli_number: Optional[str] = None
     sections: List[SongSection]
     # We can add more fields later like 'author', 'key', etc.
@@ -17,12 +18,15 @@ class ServiceItem(BaseModel):
     id: Optional[str] = None # ID if it's a song from DB
     data: Optional[dict] = None # Extra data (e.g. bible ref, or custom announcement text)
 
+class BibleReading(BaseModel):
+    reference: str
+    version: str = "NIV"
+
 class GenerateRequest(BaseModel):
     date: str
     speaker: str
     topic: str
-    bible_reference: str
-    bible_version: str = "NIV"
+    bible_readings: List[BibleReading] = []
     songs: List[Song] # We pass full song objects for simplicity in generation
     response_songs: List[Song]
     template_name: Optional[str] = "medium" # small, medium, large

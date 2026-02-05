@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { api, type Song } from './api';
+import { api, type Song, type BibleReading } from './api';
 import { format } from 'date-fns';
 import { Header } from './components/Header';
 import { ServiceInfo } from './components/ServiceInfo';
@@ -19,8 +19,8 @@ const App: React.FC = () => {
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [speaker, setSpeaker] = useState('');
   const [topic, setTopic] = useState('');
-  const [bibleRef, setBibleRef] = useState('');
-  const [bibleVersion, setBibleVersion] = useState('NIV');
+  
+  const [bibleReadings, setBibleReadings] = useState<BibleReading[]>([]);
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [translate, setTranslate] = useState(false);
@@ -47,7 +47,10 @@ const App: React.FC = () => {
   };
 
   const filteredSongs = songs
-    .filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
+    .filter(s => 
+      s.title.toLowerCase().includes(search.toLowerCase()) || 
+      (s.artist && s.artist.toLowerCase().includes(search.toLowerCase()))
+    )
     .sort((a, b) => {
       const titleA = a.title.toLowerCase();
       const titleB = b.title.toLowerCase();
@@ -79,8 +82,7 @@ const App: React.FC = () => {
         date,
         speaker,
         topic,
-        bible_reference: bibleRef,
-        bible_version: bibleVersion,
+        bible_readings: bibleReadings,
         songs: selectedSongs,
         response_songs: responseSongs,
         template_name: 'medium',
@@ -159,10 +161,8 @@ const App: React.FC = () => {
               setTopic={setTopic} 
             />
             <BiblePassage 
-              bibleRef={bibleRef} 
-              setBibleRef={setBibleRef} 
-              bibleVersion={bibleVersion} 
-              setBibleVersion={setBibleVersion} 
+              readings={bibleReadings} 
+              setReadings={setBibleReadings} 
             />
             <TranslationConfig 
               translate={translate} 
@@ -198,7 +198,7 @@ const App: React.FC = () => {
               setWorshipSongs={setSelectedSongs} 
               responseSongs={responseSongs} 
               setResponseSongs={setResponseSongs} 
-              bibleRef={bibleRef} 
+              readings={bibleReadings} 
             />
           </div>
         </div>

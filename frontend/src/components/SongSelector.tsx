@@ -121,7 +121,10 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
               >
                 <div className="flex-1 min-w-0 mr-2">
                   <div className={`font-medium ${textClass}`}>{song.title}</div>
-                  <div className="flex gap-2 text-xs text-gray-400 opacity-80 group-hover:opacity-100 transition-opacity">
+                  {song.artist && (
+                    <div className="text-xs text-gray-500 truncate">{song.artist}</div>
+                  )}
+                  <div className="flex gap-2 text-xs text-gray-400 opacity-80 group-hover:opacity-100 transition-opacity mt-1">
                      <button onClick={() => onEditSong(song)} className="hover:text-blue-600 flex items-center gap-1">
                         <Pencil size={12} /> Edit
                      </button>
