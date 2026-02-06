@@ -9,6 +9,8 @@ from .models import Song, GenerateRequest
 from .generator import generate_powerpoint
 from .bible import bible_passage_auto
 from .database import db
+from .fetch_lyrics import fetch_lyrics
+from .ai_translate import structure_lyrics_with_gemini
 
 app = FastAPI(title="PPT Generator API")
 
@@ -58,6 +60,20 @@ async def delete_song(song_id: str):
         raise HTTPException(status_code=404, detail="Song not found")
         
     return {"message": "Song deleted"}
+
+@app.get("/songs/search")
+async def search_song_lyrics(title: str, artist: str = ""):
+    result = fetch_lyrics(title, artist)
+    if not result:
+        raise HTTPException(status_code=404, detail="Song not found on Genius")
+    
+    sections = structure_lyrics_with_gemini(result["lyrics"])
+    
+    return {
+        "title": result["title"],
+        "artist": result["artist"],
+        "sections": sections
+    }
 
 @app.get("/bible")
 async def get_bible_passage(ref: str, version: str = "NIV"):

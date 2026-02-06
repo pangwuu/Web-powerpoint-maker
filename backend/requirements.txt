@@ -6,6 +6,7 @@ pydantic
 python-dotenv
 meaningless
 google-genai
+lyricsgenius
 deep-translator
 fuzzywuzzy
 python-Levenshtein

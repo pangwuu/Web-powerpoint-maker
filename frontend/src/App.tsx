@@ -59,7 +59,7 @@ const App: React.FC = () => {
     return saved ? JSON.parse(saved) : {
       account_name: 'Blacktown Chinese Christian Church',
       account_number: '4216 50263',
-      bsb: '112 - 879',
+      bsb: '112 – 879',
       reference: 'offering',
       details: 'The offering box is available at the back of the hall'
     };

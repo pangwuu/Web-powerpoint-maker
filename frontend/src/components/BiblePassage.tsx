@@ -25,7 +25,7 @@ export const BiblePassage: React.FC<BiblePassageProps> = ({
     <section className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 transition-all hover:shadow-md">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2 dark:text-gray-100">
-          <BookOpen size={20} className="text-green-600 dark:text-green-400" />
+          <BookOpen size={20} className="text-emerald-600 dark:text-emerald-400" />
           Bible Readings
         </h2>
       </div>
@@ -38,12 +38,12 @@ export const BiblePassage: React.FC<BiblePassageProps> = ({
                 value={r.reference}
                 onChange={e => updateReading(i, 'reference', e.target.value)}
                 placeholder="e.g. John 3:16-18"
-                className="w-full p-2 border dark:border-gray-700 rounded-md text-sm focus:ring-2 focus:ring-green-500 outline-none bg-white dark:bg-gray-800 dark:text-gray-100" 
+                className="w-full p-2 border dark:border-gray-700 rounded-md text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-white dark:bg-gray-800 dark:text-gray-100" 
               />
               <select 
                 value={r.version}
                 onChange={e => updateReading(i, 'version', e.target.value)}
-                className="w-full p-2 border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-sm dark:text-gray-100 outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full p-2 border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-sm dark:text-gray-100 outline-none focus:ring-2 focus:ring-emerald-500"
               >
                 <option value="NIV">NIV</option>
                 <option value="ESV">ESV</option>
@@ -63,7 +63,7 @@ export const BiblePassage: React.FC<BiblePassageProps> = ({
         
         <button
           onClick={addReading}
-          className="w-full py-2 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-lg text-gray-400 dark:text-gray-500 hover:border-green-300 dark:hover:border-green-700 hover:text-green-500 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/10 transition-all flex items-center justify-center gap-2 mt-2"
+          className="w-full py-2 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-lg text-gray-400 dark:text-gray-500 hover:border-emerald-200 dark:hover:border-emerald-800 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-all flex items-center justify-center gap-2 mt-2"
         >
           <Plus size={16} /> Add Reading
         </button>

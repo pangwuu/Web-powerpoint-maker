@@ -51,7 +51,17 @@ export interface GenerateRequest {
   language: string;
 }
 
-export const api = {
+export interface ApiService {
+  getSongs: () => Promise<Song[]>;
+  createSong: (song: Song) => Promise<Song>;
+  updateSong: (song: Song) => Promise<Song>;
+  deleteSong: (id: string) => Promise<void>;
+  searchSongLyrics: (title: string, artist?: string) => Promise<Song>;
+  getBiblePassage: (ref: string, version: string) => Promise<any>;
+  generatePPT: (data: GenerateRequest, signal?: AbortSignal) => Promise<void>;
+}
+
+export const api: ApiService = {
   getSongs: async () => {
     const response = await axios.get<Song[]>(`${API_BASE_URL}/songs`);
     return response.data;
@@ -69,6 +79,13 @@ export const api = {
 
   deleteSong: async (id: string) => {
     await axios.delete(`${API_BASE_URL}/songs/${id}`);
+  },
+
+  searchSongLyrics: async (title: string, artist: string = ''): Promise<Song> => {
+    const response = await axios.get<Song>(`${API_BASE_URL}/songs/search`, {
+      params: { title, artist }
+    });
+    return response.data;
   },
   
   getBiblePassage: async (ref: string, version: string) => {

@@ -142,17 +142,17 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
         )}
 
         {/* Bible Reading Section */}
-        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-900/30">
-          <h3 className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-1 flex items-center gap-1">
+        <div className="p-3 bg-emerald-50/50 dark:bg-emerald-900/20 rounded-md border border-emerald-100 dark:border-emerald-900/30">
+          <h3 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
             <BookOpen size={12} /> Bible Readings
           </h3>
-          <p className="text-sm font-medium text-green-800 dark:text-green-300">
+          <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
             {formatReadings()}
           </p>
         </div>
 
         {/* Response Section */}
-        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 border border-zinc-100 dark:border-zinc-800">
+        <div className="p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-md border border-zinc-100 dark:border-zinc-800">
           <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2 flex items-center gap-1">
             <Music size={12} /> Response Songs
           </h3>
@@ -162,8 +162,8 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
         {/* Additional Items Section */}
         <div className="pt-4 border-t border-gray-100 dark:border-gray-800 space-y-3">
           {/* Announcements */}
-          <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-md border border-orange-100 dark:border-orange-900/30">
-            <h3 className="text-xs font-bold text-orange-700 dark:text-orange-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <div className="p-3 bg-amber-50/50 dark:bg-amber-900/20 rounded-md border border-amber-100 dark:border-amber-900/30">
+            <h3 className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1">
               <Megaphone size={12} /> Announcements
             </h3>
             {announcements.length === 0 ? (
@@ -171,7 +171,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
             ) : (
               <ul className="space-y-1">
                 {announcements.map((ann, i) => (
-                  <li key={i} className="text-sm text-gray-600 dark:text-gray-300 truncate pl-2 border-l-2 border-orange-200 dark:border-orange-800">
+                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 truncate pl-2 border-l-2 border-amber-200 dark:border-amber-800">
                     {ann.title || 'Untitled Announcement'}
                   </li>
                 ))}
@@ -189,8 +189,8 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
           </div>
 
           {/* Prayer Points */}
-          <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-md border border-red-100 dark:border-red-900/30">
-            <h3 className="text-xs font-bold text-red-700 dark:text-red-400 uppercase tracking-wider mb-2 flex items-center gap-1">
+          <div className="p-3 bg-rose-50/50 dark:bg-rose-900/20 rounded-md border border-rose-100 dark:border-rose-900/30">
+            <h3 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1">
               <Heart size={12} /> Prayer Points
             </h3>
             {prayerPoints.length === 0 ? (
@@ -198,7 +198,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
             ) : (
               <ul className="space-y-1">
                 {prayerPoints.map((point, i) => (
-                  <li key={i} className="text-sm text-gray-600 dark:text-gray-300 truncate pl-2 border-l-2 border-red-200 dark:border-red-800">
+                  <li key={i} className="text-sm text-gray-700 dark:text-gray-300 truncate pl-2 border-l-2 border-rose-200 dark:border-rose-800">
                     {point || 'Empty point'}
                   </li>
                 ))}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { type Song, type SongSection } from '../api';
-import { Plus, Trash2, X } from 'lucide-react';
+import { api, type Song, type SongSection } from '../api';
+import { Plus, Trash2, X, Search, Loader2 } from 'lucide-react';
 
 interface SongEditorProps {
   song: Song | null;
@@ -14,6 +14,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
   const [artist, setArtist] = useState('');
   const [ccliNumber, setCcliNumber] = useState('');
   const [sections, setSections] = useState<SongSection[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (song) {
@@ -45,6 +46,22 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
     setSections(newSections);
   };
 
+  const handleSearch = async () => {
+    if (!title) return;
+    setIsSearching(true);
+    try {
+      const result = await api.searchSongLyrics(title, artist);
+      setTitle(result.title || '');
+      setArtist(result.artist || '');
+      setSections(result.sections || []);
+    } catch (error) {
+      console.error('Failed to search lyrics:', error);
+      alert('Failed to find lyrics. Please try again or enter manually.');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave({
@@ -71,7 +88,27 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Song Title</label>
+              <div className="flex justify-between items-end mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Song Title</label>
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  disabled={isSearching || !title}
+                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  {isSearching ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Searching...
+                    </>
+                  ) : (
+                    <>
+                      <Search size={14} />
+                      Search & Auto-fill
+                    </>
+                  )}
+                </button>
+              </div>
               <input
                 type="text"
                 required
