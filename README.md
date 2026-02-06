@@ -12,10 +12,11 @@ This project is a migration of the original powerpoint maker from a terminal scr
 1. Head to [this link](https://web-powerpoint-maker.vercel.app/).
 2. Fill in the service details (Date, Speaker, Topic).
 3. Search for songs in the middle column and add them to the "Worship" or "Response" sets.
-4. Enter the Bible reference.
-5. If you wish to have translated lyrics for your congregation, tick the `translate lyrics` button for songs and type in a supported language.
-6. Check if all inputs are correct.
-7. Click "Generate PPTX" to save your finished presentation.
+4. Enter the Bible reading/s you wish to use.
+5. If you wish to have translated lyrics for your congregation, tick the `translate lyrics` button for songs and select a supported language.
+6. Type in any other details such as announcements, giving details, and prayer points.
+7. Check if all inputs are correct.
+8. Click "Generate PPTX" to save and download your finished presentation.
 
 ## How to add songs
 
@@ -26,11 +27,10 @@ This project is a migration of the original powerpoint maker from a terminal scr
 ## How to edit songs
 
 1. On an existing song, click the `edit` button underneath the song title.
-2. Edit the song's properties as necessary.
+2. Edit the song's fields as necessary. 
 
 ## Running locally
 If you wish to run this locally, follow the instructions below.
-
 
 ### 1. Backend Setup
 
