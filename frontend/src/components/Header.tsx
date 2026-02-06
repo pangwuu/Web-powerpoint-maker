@@ -33,8 +33,8 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
   };
 
   return (
-    <div className="mb-5">
-      <div className="flex flex-col md:flex-row md:items-start justify-between">
+    <div className="mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
             Web PowerPoint Maker
@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-white/80 max-md:backdrop-blur-md max-md:p-4 max-md:border-t max-md:z-50 max-md:justify-center max-md:shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
           {isGenerating && (
             <>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium animate-pulse">
@@ -66,10 +66,10 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
               
               <button
                 onClick={onCancel}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all border border-gray-200"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all border border-gray-200 bg-white"
               >
                 <XCircle size={18} />
-                Cancel
+                <span className="md:inline">Cancel</span>
               </button>
             </>
           )}
@@ -77,10 +77,10 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
           <button
             onClick={onGenerate}
             disabled={isGenerating}
-            className={`flex items-center gap-2 px-8 py-2.5 rounded-lg font-bold shadow-sm transition-all active:scale-95 ${
+            className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl font-bold shadow-sm transition-all active:scale-95 max-md:w-full max-md:max-w-xs ${
               isGenerating 
                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 shadow-lg'
             }`}
           >
             {isGenerating ? (

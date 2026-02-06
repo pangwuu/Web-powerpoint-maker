@@ -61,13 +61,8 @@ export const AdditionalSections: React.FC<AdditionalSectionsProps> = ({
         </h2>
         <div className="space-y-4">
           {announcements.map((ann, i) => (
-            <div key={i} className="p-3 border rounded-lg bg-gray-50 space-y-2 relative">
-              <button 
-                onClick={() => removeAnnouncement(i)}
-                className="absolute top-2 right-2 text-red-400 hover:text-red-600"
-              >
-                <Trash2 size={16} />
-              </button>
+            <div key={i} className="space-y-2">
+              <div className='flex space-x-2'>
               <input 
                 type="text" 
                 value={ann.title}
@@ -75,6 +70,14 @@ export const AdditionalSections: React.FC<AdditionalSectionsProps> = ({
                 placeholder="Announcement Title"
                 className="w-full p-2 border rounded-md text-sm font-bold"
               />
+              <button 
+                onClick={() => removeAnnouncement(i)}
+                className="p-2 text-red-400 hover:text-red-600"
+              >
+                <Trash2 size={16} />
+              </button>              
+              </div>
+
               <textarea 
                 value={ann.content}
                 onChange={e => updateAnnouncement(i, 'content', e.target.value)}
