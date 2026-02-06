@@ -52,7 +52,6 @@ export const BiblePassage: React.FC<BiblePassageProps> = ({
                 <option value="KJV">KJV</option>
                 <option value="NASB">NASB</option>
                 <option value="NLT">NLT</option>
-                <option value="CUV">CUV (Chinese)</option>
               </select>
             </div>
             <button

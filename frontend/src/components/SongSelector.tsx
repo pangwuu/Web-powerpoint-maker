@@ -34,6 +34,7 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   responseSongIds,
 }) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [toast, setToast] = useState<{ message: string; type: 'worship' | 'response' } | null>(null);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | undefined;
@@ -50,6 +51,21 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
     };
   }, [isLoadingSongs]);
 
+  const showToast = (title: string, type: 'worship' | 'response') => {
+    setToast({ message: `"${title}" added as a ${type} song`, type });
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  const handleAddWorship = (song: Song) => {
+    onAddWorship(song);
+    showToast(song.title, 'worship');
+  };
+
+  const handleAddResponse = (song: Song) => {
+    onAddResponse(song);
+    showToast(song.title, 'response');
+  };
+
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -57,7 +73,18 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
   };
 
   return (
-    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px]">
+    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col h-full max-h-[600px] relative">
+      {/* Feedback Toast */}
+      {toast && (
+        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-[60] px-4 py-2 rounded-full shadow-lg border text-sm font-medium animate-in fade-in slide-in-from-bottom-4 transition-all ${
+          toast.type === 'worship' 
+            ? 'bg-blue-50 border-blue-200 text-blue-700' 
+            : 'bg-purple-50 border-purple-200 text-purple-700'
+        }`}>
+          {toast.message}
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold flex items-center gap-2">
           <Search size={20} className="text-purple-600" />
@@ -136,13 +163,13 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
                 
                 <div className="flex opacity-80 group-hover:opacity-100 transition-opacity shrink-0 flex flex-col space-y-2">
                   <button 
-                    onClick={() => onAddWorship(song)}
+                    onClick={() => handleAddWorship(song)}
                     className="p-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 text-xs px-2"
                   >
                     Worship
                   </button>
                   <button 
-                    onClick={() => onAddResponse(song)}
+                    onClick={() => handleAddResponse(song)}
                     className="p-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 text-xs px-2"
                   >
                     Response
