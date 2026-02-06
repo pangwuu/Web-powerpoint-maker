@@ -67,8 +67,7 @@ export const BiblePassage: React.FC<BiblePassageProps> = ({
         
         <button
           onClick={handleAddReading}
-          className="flex items-center gap-2 text-sm text-green-600 hover:text-green-700 font-medium px-2 py-1 rounded hover:bg-green-50"
-        >
+            className="w-full py-2 border-2 border-dashed border-gray-200 rounded-lg text-gray-500 hover:border-green-300 hover:text-green-500 transition-colors flex items-center justify-center gap-2">
           <Plus size={16} /> Add Reading
         </button>
       </div>

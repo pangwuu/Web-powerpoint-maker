@@ -139,11 +139,10 @@ export const AdditionalSections: React.FC<AdditionalSectionsProps> = ({
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Details/Location</label>
-            <input 
-              type="text" 
+            <textarea 
               value={offering.details}
               onChange={e => setOffering({ ...offering, details: e.target.value })}
-              className="w-full p-2 border rounded-md text-sm"
+              className="w-full p-2 border rounded-md text-sm multiline"
             />
           </div>
         </div>
