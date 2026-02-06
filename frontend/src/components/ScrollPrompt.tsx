@@ -21,10 +21,10 @@ export const ScrollPrompt: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <div className="hidden md:flex fixed bottom-8 right-8 flex-col items-center gap-2">
-      <div className="bg-white px-4 py-2 rounded-full shadow-lg border border-gray-100 flex items-center gap-2">
-        <span className="text-sm font-medium text-gray-600">Scroll for more</span>
-        <ChevronDown size={18} className="text-blue-600" />
+    <div className="hidden md:flex fixed bottom-8 right-8 flex-col items-center gap-2 ">
+      <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-lg border border-gray-100 dark:border-gray-700 flex items-center gap-2 transition-colors duration-300">
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Scroll for more</span>
+        <ChevronDown size={18} className="text-blue-600 dark:text-blue-400" />
       </div>
     </div>
   );

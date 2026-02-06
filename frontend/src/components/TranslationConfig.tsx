@@ -29,29 +29,33 @@ export const TranslationConfig: React.FC<TranslationConfigProps> = ({
   setLanguage,
 }) => {
   return (
-    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 className="text-xl font-semibold mb-4">Translation</h2>
+    <section className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+      <h2 className="text-xl font-semibold mb-4 dark:text-gray-100">Translation</h2>
       <div className="flex items-center gap-2">
         <input 
           type="checkbox" 
           id="translate"
           checked={translate}
           onChange={e => setTranslate(e.target.checked)}
+          className="w-4 h-4 text-blue-600 dark:text-blue-500 rounded border-gray-300 dark:border-gray-700 bg-gray-100 dark:bg-gray-800 focus:ring-blue-500"
         />
-        <label htmlFor="translate" className="text-sm font-medium text-gray-700">Translate song lyrics</label>
+        <label htmlFor="translate" className="text-sm font-medium text-gray-700 dark:text-gray-300">Translate song lyrics</label>
       </div>
       {translate && (
         <div>
           <select
             value={language}
             onChange={e => setLanguage(e.target.value)}
-            className="w-full mt-2 p-2 border rounded-md bg-white"
+            className="w-full mt-2 p-2 border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 outline-none focus:ring-2 focus:ring-blue-500"
           >
             {SUPPORTED_LANGUAGES.map(lang => (
               <option key={lang} value={lang}>{lang}</option>
             ))}
           </select>
-          <p className="text-sm text-gray-600 pt-1">Song translation is performed by AI and takes up to a few minutes depending on the number of songs that are sung. It may also not be completely reliable. Use this at your own risk and ensure you proofread all lyrics before presenting.</p>
+          <p className="text-sm text-gray-600 dark:text-gray-400 pt-2 leading-relaxed">
+            Song translation is performed by AI and takes up to a few minutes. 
+            It may not be completely reliable. Use with caution and proofread all lyrics.
+          </p>
         </div>
       )}
     </section>

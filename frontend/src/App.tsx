@@ -16,6 +16,12 @@ const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('ppt_darkMode');
+    if (saved !== null) return saved === 'true';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
 
   // Initialize state directly from localStorage
   const [selectedSongs, setSelectedSongs] = useState<Song[]>(() => {
@@ -67,6 +73,16 @@ const App: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [translate, setTranslate] = useState(() => localStorage.getItem('ppt_translate') === 'true');
   const [language, setLanguage] = useState(() => localStorage.getItem('ppt_language') || 'Chinese (Simplified)');
+
+  // Theme Sync
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('ppt_darkMode', String(darkMode));
+  }, [darkMode]);
 
   // Sync to localStorage
   useEffect(() => {
@@ -224,9 +240,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans pb-24 md:pb-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 md:p-8 font-sans pb-24 md:pb-8 transition-colors duration-300">
       <div className="max-w-6xl mx-auto">
-        <Header onGenerate={handleGenerate} onCancel={handleCancel} isGenerating={isGenerating} />
+        <Header 
+          onGenerate={handleGenerate} 
+          onCancel={handleCancel} 
+          isGenerating={isGenerating} 
+          darkMode={darkMode}
+          toggleDarkMode={() => setDarkMode(!darkMode)}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column: Service Details */}

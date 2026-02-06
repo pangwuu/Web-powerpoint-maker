@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Download, Loader2, XCircle, HelpCircle, Info } from 'lucide-react';
+import { Download, Loader2, XCircle, HelpCircle, Info, Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
   onGenerate: () => void;
   onCancel: () => void;
   isGenerating: boolean;
+  darkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerating }) => {
+export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerating, darkMode, toggleDarkMode }) => {
   const [elapsedTime, setElapsedTime] = useState<number>(0);
   const [showHelp, setShowHelp] = useState(false);
 
@@ -36,24 +38,32 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
     <div className="mb-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
+          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
             Web PowerPoint Maker
           </h1>
-          <p className="text-lg text-gray-500 mt-1">
+          <p className="text-lg text-gray-500 dark:text-gray-400 mt-1">
             Create church service slides in seconds.
           </p>
           
           {/* Text-based troubleshooting trigger */}
           <button 
             onClick={() => setShowHelp(!showHelp)}
-            className="mt-2 flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-all"
+            className="mt-2 flex items-center gap-1.5 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-all"
           >
             Seeing empty slides or "Master title style"?
             <HelpCircle size={14} />
           </button>
         </div>
 
-        <div className="flex items-center gap-3 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-white/80 max-md:backdrop-blur-md max-md:p-4 max-md:border-t max-md:z-50 max-md:justify-center max-md:shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
+        <div className="flex items-center gap-3 max-md:fixed max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-white/80 dark:max-md:bg-gray-900/80 max-md:backdrop-blur-md max-md:p-4 max-md:border-t dark:max-md:border-gray-800 max-md:z-50 max-md:justify-center max-md:shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.08)]">
+          <button
+            onClick={toggleDarkMode}
+            className="p-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-all shadow-sm"
+            title={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+          >
+            {darkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+
           {isGenerating && (
             <>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full text-sm font-medium animate-pulse">
@@ -66,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
               
               <button
                 onClick={onCancel}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-gray-600 hover:bg-red-50 hover:text-red-600 transition-all border border-gray-200 bg-white"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-gray-600 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
               >
                 <XCircle size={18} />
                 <span className="md:inline">Cancel</span>
@@ -79,8 +89,8 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
             disabled={isGenerating}
             className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl font-bold shadow-sm transition-all active:scale-95 max-md:w-full max-md:max-w-xs ${
               isGenerating 
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200' 
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 shadow-lg'
+                ? 'bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed border border-gray-200 dark:border-gray-700' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 dark:shadow-none shadow-lg'
             }`}
           >
             {isGenerating ? (
@@ -100,11 +110,11 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
 
       {/* Troubleshooting Alert Section */}
       {showHelp && (
-        <div className="mt-6 p-5 bg-amber-50 border border-amber-200 rounded-xl flex gap-4 animate-in fade-in slide-in-from-top-2">
-          <div className="bg-amber-100 p-2 h-fit rounded-full">
-            <Info className="text-amber-700 shrink-0" size={20} />
+        <div className="mt-6 p-5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/30 rounded-xl flex gap-4 animate-in fade-in slide-in-from-top-2">
+          <div className="bg-amber-100 dark:bg-amber-900/40 p-2 h-fit rounded-full">
+            <Info className="text-amber-700 dark:text-amber-400 shrink-0" size={20} />
           </div>
-          <div className="text-sm text-amber-900 leading-relaxed">
+          <div className="text-sm text-amber-900 dark:text-amber-200 leading-relaxed">
             <p className="font-bold text-base mb-1">How to fix "Empty Slides"</p>
             <p className="mb-2">
               If your slides appear blank, PowerPoint has likely opened the file in <strong>Slide Master</strong> view.
