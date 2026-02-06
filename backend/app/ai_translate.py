@@ -3,6 +3,10 @@ import os
 from dotenv import load_dotenv
 from functools import cache
 from pathlib import Path
+from typing import Optional
+
+load_dotenv()
+client = genai.Client()
 
 @cache
 def translate_with_gemini(text: str, translated_language: str,  start_language: str='English') -> str:
@@ -37,10 +41,32 @@ DO NOT PROVIDE ANY OTHER OUTPUTS OTHER THAN THE SONG LINES IN THE FORMAT ABOVE
 '''
 
     try:
-        response = client.models.generate_content(prompt)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
         return response.text
     except Exception as e:
         print(f"Translation failed: {e}")
         return text
+
+@cache
+def translate_text_gemini(text: str, target_language: str) -> Optional[str]:
+    """Translation of text using Gemini. Can be a single line or a block."""
+    
+    prompt = f"Translate the following text to {target_language}. Keep the same number of lines and do not add any explanations or extra text. Only return the translated lines:\n\n{text}"
+            
+    try:
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt
+        )
+        translated = response.text.strip()
+        if translated:
+            return translated
+        return None
+    except Exception as e:
+        print(f"Gemini translation error: {e}")
+        return None
 
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Music, BookOpen, Trash2, GripVertical } from 'lucide-react';
-import { type Song, type BibleReading } from '../api';
+import { Music, BookOpen, Trash2, GripVertical, Megaphone, CreditCard, Heart, Coffee, Star, Pin, Wine } from 'lucide-react';
+import { type Song, type BibleReading, type AnnouncementItem } from '../api';
+import { isSunday, getDate } from 'date-fns';
 
 interface ServiceOrderProps {
   worshipSongs: Song[];
@@ -8,6 +9,10 @@ interface ServiceOrderProps {
   responseSongs: Song[];
   setResponseSongs: (songs: Song[]) => void;
   readings: BibleReading[];
+  announcements: AnnouncementItem[];
+  prayerPoints: string[];
+  mingleText: string;
+  date: string;
 }
 
 export const ServiceOrder: React.FC<ServiceOrderProps> = ({
@@ -16,8 +21,22 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   responseSongs,
   setResponseSongs,
   readings,
+  announcements,
+  prayerPoints,
+  mingleText,
+  date,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<{ index: number; type: 'worship' | 'response' } | null>(null);
+
+  const isCommunionSunday = () => {
+    try {
+      const d = new Date(date);
+      const dayOfMonth = getDate(d);
+      return dayOfMonth >= 1 && dayOfMonth <= 7;
+    } catch {
+      return false;
+    }
+  };
 
   const handleDragStart = (index: number, type: 'worship' | 'response') => {
     setDraggedIndex({ index, type });
@@ -58,13 +77,13 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
         >
           <div className="flex items-center gap-2 overflow-hidden">
             <GripVertical size={14} className="text-gray-400 shrink-0" />
-            <span className="truncate">{song.title}</span>
+            <span className="truncate text-sm">{song.title}</span>
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); removeSong(i); }}
             className="p-1 hover:bg-white rounded-full transition-colors"
           >
-            <Trash2 size={16} className="text-red-400 hover:text-red-600" />
+            <Trash2 size={14} className="text-red-400 hover:text-red-600" />
           </button>
         </div>
       ))}
@@ -77,27 +96,112 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   };
 
   return (
-    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <Music size={20} className="text-pink-600" />
-        Service Order
+    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-8">
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
+        <Star size={20} className="text-yellow-500" />
+        Service Preview
       </h2>
       
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Worship Set</h3>
+      <div className="space-y-5">
+        {/* Bulletin slide */}
+        <div className="p-2 rounded-md bg-gray-50 border border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <Pin size={14} />
+              <span className="font-medium">Bulletin slide</span>
+            </div>
+        </div>
+        
+        {/* Worship Section */}
+        <div className="p-2 rounded-md bg-slate-50 border border-slate-100">
+          <h3 className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+            <Music size={12} /> Worship Set
+          </h3>
           {renderList(worshipSongs, 'worship', (idx) => setWorshipSongs(worshipSongs.filter((_, i) => i !== idx)))}
         </div>
 
-        <div className="py-2 border-y border-dashed border-gray-200">
-          <p className="text-sm font-semibold text-gray-600 flex items-center gap-2">
-            <BookOpen size={14} /> Bible Reading: {formatReadings() || 'TBA'}
+        {/* Communion Section */}
+        {isCommunionSunday() && (
+          <div className="p-2 rounded-md bg-red-50 border border-red-100">
+            <p className="text-xs font-bold text-red-700 uppercase tracking-wider mb-1">Special</p>
+            <p className="text-sm font-medium text-red-800 flex items-center gap-2">
+              <Wine size={14} /> Holy Communion slide
+            </p>
+          </div>
+        )}
+
+        {/* Bible Reading Section */}
+        <div className="p-3 bg-green-50 rounded-md border border-green-100">
+          <h3 className="text-xs font-bold text-green-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+            <BookOpen size={12} /> Bible Readings
+          </h3>
+          <p className="text-sm font-medium text-green-800">
+            {formatReadings()}
           </p>
         </div>
 
-        <div>
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Response</h3>
+        {/* Response Section */}
+        <div className="p-3 bg-zinc-50 rounded-md border border-zinc-100">
+          <h3 className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+            <Music size={12} /> Response Songs
+          </h3>
           {renderList(responseSongs, 'response', (idx) => setResponseSongs(responseSongs.filter((_, i) => i !== idx)))}
+        </div>
+
+        {/* Additional Items Section */}
+        <div className="pt-4 border-t border-gray-100 space-y-3">
+          {/* Announcements */}
+          <div className="p-3 bg-orange-50 rounded-md border border-orange-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Megaphone size={12} /> Announcements
+            </h3>
+            {announcements.length === 0 ? (
+              <p className="text-xs text-gray-400 italic">None added</p>
+            ) : (
+              <ul className="space-y-1">
+                {announcements.map((ann, i) => (
+                  <li key={i} className="text-sm text-gray-600 truncate pl-2 border-l-2 border-orange-200">
+                    {ann.title || 'Untitled Announcement'}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Offering */}
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+              <CreditCard size={11} />
+              Offering Slide
+            </h3>
+
+          </div>
+
+          {/* Prayer Points */}
+          <div className="p-3 bg-red-50 rounded-md border border-red-100">
+            <h3 className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1">
+              <Heart size={12} /> Prayer Points
+            </h3>
+            {prayerPoints.length === 0 ? (
+              <p className="text-xs text-gray-400 italic">None added</p>
+            ) : (
+              <ul className="space-y-1">
+                {prayerPoints.map((point, i) => (
+                  <li key={i} className="text-sm text-gray-600 truncate pl-2 border-l-2 border-red-200">
+                    {point || 'Empty point'}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Mingle */}
+          <div className="p-3 bg-gray-50 rounded-md border border-gray-100">
+            <div className="flex items-center gap-2 text-sm text-gray-700">
+              <Coffee size={14} className="text-amber-700" />
+              <span className="font-medium">{mingleText || 'Mingle Time'}</span>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

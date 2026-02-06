@@ -8,6 +8,10 @@ interface ServiceInfoProps {
   setSpeaker: (speaker: string) => void;
   topic: string;
   setTopic: (topic: string) => void;
+  churchName: string;
+  setChurchName: (name: string) => void;
+  serviceName: string;
+  setServiceName: (name: string) => void;
 }
 
 export const ServiceInfo: React.FC<ServiceInfoProps> = ({
@@ -17,6 +21,10 @@ export const ServiceInfo: React.FC<ServiceInfoProps> = ({
   setSpeaker,
   topic,
   setTopic,
+  churchName,
+  setChurchName,
+  serviceName,
+  setServiceName,
 }) => {
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -25,6 +33,30 @@ export const ServiceInfo: React.FC<ServiceInfoProps> = ({
         Service Info
       </h2>
       <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <Settings size={14} /> Church Name
+          </label>
+          <input 
+            type="text" 
+            value={churchName}
+            onChange={e => setChurchName(e.target.value)}
+            placeholder="e.g. Blacktown Chinese Christian Church"
+            className="w-full p-2 border rounded-md" 
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <Settings size={14} /> Service Name
+          </label>
+          <input 
+            type="text" 
+            value={serviceName}
+            onChange={e => setServiceName(e.target.value)}
+            placeholder="e.g. English Service"
+            className="w-full p-2 border rounded-md" 
+          />
+        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
             <Calendar size={14} /> Date

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api, type Song, type BibleReading } from './api';
-import { format } from 'date-fns';
+import { format, nextSunday, isSunday } from 'date-fns';
 import { Header } from './components/Header';
 import { ServiceInfo } from './components/ServiceInfo';
 import { BiblePassage } from './components/BiblePassage';
@@ -8,6 +8,9 @@ import { TranslationConfig } from './components/TranslationConfig';
 import { SongSelector } from './components/SongSelector';
 import { ServiceOrder } from './components/ServiceOrder';
 import { SongEditor } from './components/SongEditor';
+import { AdditionalSections } from './components/AdditionalSections';
+import { ScrollPrompt } from './components/ScrollPrompt';
+import { type AnnouncementItem, type OfferingInfo } from './api';
 
 const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
@@ -16,12 +19,29 @@ const App: React.FC = () => {
   const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [responseSongs, setResponseSongs] = useState<Song[]>([]);
   
-  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    const defaultDate = isSunday(today) ? today : nextSunday(today);
+    return format(defaultDate, 'yyyy-MM-dd');
+  });
   const [speaker, setSpeaker] = useState('');
   const [topic, setTopic] = useState('');
-  
+  const [churchName, setChurchName] = useState('Blacktown Chinese Christian Church');
+  const [serviceName, setServiceName] = useState('English Service');
+
   const [bibleReadings, setBibleReadings] = useState<BibleReading[]>([]);
   
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
+  const [offering, setOffering] = useState<OfferingInfo>({
+    account_name: 'Blacktown Chinese Christian Church',
+    account_number: '4216 50263',
+    bsb: '112 - 879',
+    reference: 'offering',
+    details: 'The offering box is available at the back of the hall'
+  });
+  const [prayerPoints, setPrayerPoints] = useState<string[]>([]);
+  const [mingleText, setMingleText] = useState('Mingle time!');
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [translate, setTranslate] = useState(false);
   const [language, setLanguage] = useState('Chinese (Simplified)');
@@ -82,9 +102,15 @@ const App: React.FC = () => {
         date,
         speaker,
         topic,
+        church_name: churchName,
+        service_name: serviceName,
         bible_readings: bibleReadings,
         songs: selectedSongs,
         response_songs: responseSongs,
+        announcements,
+        offering,
+        prayer_points: prayerPoints,
+        mingle_text: mingleText,
         template_name: 'medium',
         translate,
         language
@@ -159,6 +185,10 @@ const App: React.FC = () => {
               setSpeaker={setSpeaker} 
               topic={topic} 
               setTopic={setTopic} 
+              churchName={churchName}
+              setChurchName={setChurchName}
+              serviceName={serviceName}
+              setServiceName={setServiceName}
             />
             <BiblePassage 
               readings={bibleReadings} 
@@ -172,7 +202,7 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* Middle Column: Song Selector */}
+          {/* Middle Column: Song Selector & Additional Sections */}
           <div className="space-y-6">
             <SongSelector 
               filteredSongs={filteredSongs} 
@@ -189,6 +219,17 @@ const App: React.FC = () => {
               worshipSongIds={selectedSongs.map(s => s.id).filter(Boolean) as string[]}
               responseSongIds={responseSongs.map(s => s.id).filter(Boolean) as string[]}
             />
+            
+            <AdditionalSections 
+              announcements={announcements}
+              setAnnouncements={setAnnouncements}
+              offering={offering}
+              setOffering={setOffering}
+              prayerPoints={prayerPoints}
+              setPrayerPoints={setPrayerPoints}
+              mingleText={mingleText}
+              setMingleText={setMingleText}
+            />
           </div>
 
           {/* Right Column: Order / Preview */}
@@ -199,6 +240,10 @@ const App: React.FC = () => {
               responseSongs={responseSongs} 
               setResponseSongs={setResponseSongs} 
               readings={bibleReadings} 
+              announcements={announcements}
+              prayerPoints={prayerPoints}
+              mingleText={mingleText}
+              date={date}
             />
           </div>
         </div>
@@ -209,6 +254,7 @@ const App: React.FC = () => {
           onSave={handleSaveSong}
           onCancel={() => setIsEditorOpen(false)}
         />
+        <ScrollPrompt />
       </div>
     </div>
   );

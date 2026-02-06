@@ -22,13 +22,30 @@ class BibleReading(BaseModel):
     reference: str
     version: str = "NIV"
 
+class AnnouncementItem(BaseModel):
+    title: str
+    content: Optional[str] = None
+
+class OfferingInfo(BaseModel):
+    account_name: str = "Blacktown Chinese Christian Church"
+    account_number: str = "4216 50263"
+    bsb: str = "112 - 879"
+    reference: str = "offering"
+    details: str = "The offering box is available at the back of the hall"
+
 class GenerateRequest(BaseModel):
     date: str
     speaker: str
     topic: str
+    church_name: str = "Blacktown Chinese Christian Church"
+    service_name: str = "English Service"
     bible_readings: List[BibleReading] = []
-    songs: List[Song] # We pass full song objects for simplicity in generation
+    songs: List[Song]
     response_songs: List[Song]
-    template_name: Optional[str] = "medium" # small, medium, large
+    announcements: List[AnnouncementItem] = []
+    offering: OfferingInfo = OfferingInfo()
+    prayer_points: List[str] = []
+    mingle_text: str = "Mingle time!"
+    template_name: Optional[str] = "medium"
     translate: bool = False
     language: str = "Chinese (Simplified)"

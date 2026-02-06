@@ -12,8 +12,8 @@ from functools import cache
 import io
 
 # Import our models and helpers
-from .models import Song, SongSection, GenerateRequest
-from .ai_translate import translate_with_gemini
+from .models import Song, SongSection, GenerateRequest, AnnouncementItem, OfferingInfo
+from .ai_translate import translate_with_gemini, translate_text_gemini
 from .bible import get_correct_copyright_message
 
 # Paths
@@ -163,7 +163,7 @@ def add_title_with_image_on_right(prs: Presentation, title_text: str, image_type
 
     return prs
 
-def create_bulletin_slide(slide, prs, date, songs: List[str], verses: List[str], response_songs: List[str], speaker: str, topic: str):
+def create_bulletin_slide(slide, prs, date, songs: List[str], verses: List[str], response_songs: List[str], speaker: str, topic: str, church_name: str, service_name: str):
     rect = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
     rect.fill.solid()
     rect.fill.fore_color.rgb = RGBColor(255, 255, 255)
@@ -172,9 +172,9 @@ def create_bulletin_slide(slide, prs, date, songs: List[str], verses: List[str],
     # Format date nicely
     formatted_date = date.replace("-", ".")
     
-    add_text_to_slide(slide, "Blacktown Chinese Christian Church", prs, 30, position_percent=0.05, bold=True, colour="000000")
-    add_text_to_slide(slide, f"Welcome to Our English Service{ppt_text_break}{formatted_date}", prs, 23, position_percent=0.15, bold=True, colour="000000")
-    add_text_to_slide(slide, "English Service 9:45 – 11:00 am", prs, 20, position_percent=0.35, colour="7030A0", bold=True, underline=True)
+    add_text_to_slide(slide, church_name, prs, 30, position_percent=0.05, bold=True, colour="000000")
+    add_text_to_slide(slide, f"Welcome to Our {service_name}{ppt_text_break}{formatted_date}", prs, 23, position_percent=0.15, bold=True, colour="000000")
+    add_text_to_slide(slide, f"{service_name} 9:45 – 11:00 am", prs, 20, position_percent=0.35, colour="7030A0", bold=True, underline=True)
 
     bulletin_summary = {
         "left": [
@@ -200,7 +200,7 @@ def create_bulletin_slide(slide, prs, date, songs: List[str], verses: List[str],
     add_text_to_slide(slide, ppt_text_break.join(bulletin_summary["left"]), prs, 20, position_percent=0.4, alignment=PP_ALIGN.LEFT, bold=True, colour="000000")
     add_text_to_slide(slide, ppt_text_break.join(bulletin_summary["right"]), prs, 20, position_percent=0.4, alignment=PP_ALIGN.CENTER, colour="000000")
 
-def create_offering_slide(prs: Presentation, tithing_heading_size: int, tithing_body_size: int):
+def create_offering_slide(prs: Presentation, tithing_heading_size: int, tithing_body_size: int, offering_info: 'OfferingInfo'):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     
     # Title
@@ -224,11 +224,11 @@ def create_offering_slide(prs: Presentation, tithing_heading_size: int, tithing_
 
     # Data for offering
     offering_data = [
-        ("Account name: Blacktown Chinese Christian Church", "church.png"),
-        ("Account number: 4216 50263", "account_number.png"),
-        ("BSB: 112 - 879", "bsb.png"),
-        ("Please put in \"offering\" as the reference", "hands.png"),
-        ("The offering box is available at the back of the hall", "box.png"),
+        (f"Account name: {offering_info.account_name}", "church.png"),
+        (f"Account number: {offering_info.account_number}", "account_number.png"),
+        (f"BSB: {offering_info.bsb}", "bsb.png"),
+        (f"Please put in \"{offering_info.reference}\" as the reference", "hands.png"),
+        (offering_info.details, "box.png"),
     ]
 
     for i, (text, img_file) in enumerate(offering_data):
@@ -264,6 +264,12 @@ def create_offering_slide(prs: Presentation, tithing_heading_size: int, tithing_
 
 @cache
 def translate_text(text: str, language: str = 'Mandarin Chinese') -> str:
+    # Try Gemini first
+    gemini_translated = translate_text_gemini(text, language)
+    if gemini_translated:
+        return gemini_translated
+
+    # Fallback to Google Translate
     lang_map = {
         "afrikaans": "af", "albanian": "sq", "amharic": "am", "arabic": "ar", "armenian": "hy", 
         "azerbaijani": "az", "basque": "eu", "belarusian": "be", "bengali": "bn", "bosnian": "bs", 
@@ -296,6 +302,32 @@ def translate_text(text: str, language: str = 'Mandarin Chinese') -> str:
         return text
 
 def append_song(prs, song: Song, title_size, font_size, translate: bool = False, language: str = "Chinese (Simplified)"):
+    translation_map = {}
+    if translate:
+        # Collect all unique lines from the song to translate in one go
+        all_lines = []
+        for section in song.sections:
+            section_lines = [l.strip() for l in section.content.split('\n') if l.strip()]
+            all_lines.extend(section_lines)
+        
+        # Deduplicate while preserving order
+        unique_lines = []
+        for l in all_lines:
+            if l not in unique_lines:
+                unique_lines.append(l)
+        
+        if unique_lines:
+            text_to_translate = "\n".join(unique_lines)
+            translated_text_block = translate_text(text_to_translate, language)
+            translated_lines = translated_text_block.split('\n')
+            
+            # Map original lines to translated lines
+            for i, original in enumerate(unique_lines):
+                if i < len(translated_lines):
+                    translation_map[original] = translated_lines[i].strip()
+                else:
+                    translation_map[original] = original # Fallback to original if count mismatch
+
     # Title Slide
     ccli_info = ""
     if song.ccli_number:
@@ -315,23 +347,21 @@ def append_song(prs, song: Song, title_size, font_size, translate: bool = False,
         # Split into lines
         lines = [line.strip() for line in original_content.split('\n') if line.strip()]
         
-        # Chunk lines into groups of 4
-        chunk_size = 4
+        # Chunk lines: if translating, we use smaller chunks to fit both languages
+        chunk_size = 2 if translate else 4
         chunks = [lines[i:i + chunk_size] for i in range(0, len(lines), chunk_size)]
         
         for chunk in chunks:
             if translate:
-                chunk_size = 2
-                # Interleave English and Translated lines
+                # Interleave original and translated lines from the pre-translated map
                 combined_lines = []
                 for line in chunk:
-                    t_line = translate_text(line, language)
+                    t_line = translation_map.get(line, line)
                     combined_lines.append(line)
                     combined_lines.append(t_line)
                 
                 final_text = "\n".join(combined_lines)
-                # Reduce font for translated slides (more text)
-                create_text_slide(final_text, prs, font_size * 0.9) 
+                create_text_slide(final_text, prs, font_size * 0.85) 
             else:
                 final_text = "\n".join(chunk)
                 create_text_slide(final_text, prs, font_size)
@@ -365,7 +395,7 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
 
     # 1. Start
     create_blank_slide(prs) # Bulletin placeholder (index 0)
-    create_title_slide('BCCC English Service', '', prs, fonts['title'])
+    create_title_slide(request.church_name, request.service_name, prs, fonts['title'])
 
     # 2. Songs
     song_names = [s.title for s in request.songs]
@@ -409,7 +439,7 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
     verse_refs = [f"{r.reference} ({r.version})" for r in request.bible_readings]
     response_song_names = [s.title for s in request.response_songs]
     
-    create_bulletin_slide(prs.slides[0], prs, request.date, song_names, verse_refs, response_song_names, request.speaker, request.topic)
+    create_bulletin_slide(prs.slides[0], prs, request.date, song_names, verse_refs, response_song_names, request.speaker, request.topic, request.church_name, request.service_name)
 
     # 6. Response Songs
     for song in request.response_songs:
@@ -417,11 +447,20 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
 
     # 7. Announcements & Tithing
     create_title_slide('Announcements', '', prs, fonts['title'])
-    create_offering_slide(prs, fonts['title'], fonts['tithing'])
+    for ann in request.announcements:
+        if ann.content:
+            create_title_and_text_slide(ann.title, ann.content, prs, fonts['title'], fonts['song'])
+        else:
+            create_title_slide(ann.title, '', prs, fonts['title'])
+
+    create_offering_slide(prs, fonts['title'], fonts['tithing'], request.offering)
+    
     create_title_slide('Prayer Points', '', prs, fonts['title'])
+    for point in request.prayer_points:
+        create_text_slide(point, prs, fonts['song'])
     
     # 8. Mingle
-    create_title_slide('Mingle time!', '', prs, fonts['title'])
+    create_title_slide(request.mingle_text, '', prs, fonts['title'])
 
     # Output
     output = io.BytesIO()

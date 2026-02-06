@@ -82,7 +82,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Artist</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Artist (Optional)</label>
               <input
                 type="text"
                 value={artist}
@@ -91,16 +91,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
                 placeholder="e.g. Chris Tomlin"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">CCLI Number (Optional)</label>
-              <input
-                type="text"
-                value={ccliNumber}
-                onChange={(e) => setCcliNumber(e.target.value)}
-                className="w-full p-2 border rounded-md"
-                placeholder="e.g. 123456"
-              />
-            </div>
+
           </div>
 
           <div>

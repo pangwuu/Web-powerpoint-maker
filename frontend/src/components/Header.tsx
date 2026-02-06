@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Download, Loader2, XCircle } from 'lucide-react';
 
 interface HeaderProps {
@@ -8,11 +8,34 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerating }) => {
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval> | undefined;
+
+    if (isGenerating) {
+      setElapsedTime(0);
+      interval = setInterval(() => {
+        setElapsedTime((prev) => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isGenerating]);
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <header className="mb-8 flex justify-between items-center">
       <div >
         <h1 className="text-3xl font-bold text-gray-900">Web PowerPoint Maker</h1>
-        <p className="text-gray-600">Create church service slides in seconds. Disclaimer: This is a small hobby project designed for use in BCCC. If you're another church, feel free to use it too but be aware some slides are currently hardcoded</p>
+        <p className="text-gray-600 pr-3">Create church service slides in seconds.</p>
       </div>
       <div className="flex gap-2">
         {isGenerating && (
@@ -32,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
           }`}
         >
           {isGenerating ? <Loader2 size={20} className="animate-spin" /> : <Download size={20} />}
-          {isGenerating ? 'Generating...' : 'Generate PPTX'}
+          {isGenerating ? `Generating... ${formatTime(elapsedTime)}` : 'Generate PPTX'}
         </button>
       </div>
     </header>

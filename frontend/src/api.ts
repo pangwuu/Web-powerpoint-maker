@@ -20,13 +20,32 @@ export interface BibleReading {
   version: string;
 }
 
+export interface AnnouncementItem {
+  title: string;
+  content?: string;
+}
+
+export interface OfferingInfo {
+  account_name: string;
+  account_number: string;
+  bsb: string;
+  reference: string;
+  details: string;
+}
+
 export interface GenerateRequest {
   date: string;
   speaker: string;
   topic: string;
+  church_name: string;
+  service_name: string;
   bible_readings: BibleReading[];
   songs: Song[];
   response_songs: Song[];
+  announcements: AnnouncementItem[];
+  offering: OfferingInfo;
+  prayer_points: string[];
+  mingle_text: string;
   template_name: string;
   translate: boolean;
   language: string;
