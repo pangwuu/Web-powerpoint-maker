@@ -33,8 +33,8 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
   };
 
   return (
-    <header className="mb-5">
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 pb-6 border-b border-gray-100">
+    <div className="mb-5">
+      <div className="flex flex-col md:flex-row md:items-start justify-between">
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-gray-900">
             Web PowerPoint Maker
@@ -123,6 +123,6 @@ export const Header: React.FC<HeaderProps> = ({ onGenerate, onCancel, isGenerati
           </button>
         </div>
       )}
-    </header>
+    </div>
   );
 };
