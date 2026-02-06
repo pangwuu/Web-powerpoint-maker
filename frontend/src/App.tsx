@@ -3,12 +3,12 @@ import { api, type Song, type BibleReading } from './api';
 import { format, nextSunday, isSunday } from 'date-fns';
 import { Header } from './components/Header';
 import { ServiceInfo } from './components/ServiceInfo';
-import { BiblePassage } from './components/BiblePassage';
 import { TranslationConfig } from './components/TranslationConfig';
 import { SongSelector } from './components/SongSelector';
 import { ServiceOrder } from './components/ServiceOrder';
 import { SongEditor } from './components/SongEditor';
-import { AdditionalSections } from './components/AdditionalSections';
+import { ServiceContent } from './components/ServiceContent';
+import { BiblePassage } from './components/BiblePassage';
 import { ScrollPrompt } from './components/ScrollPrompt';
 import { type AnnouncementItem, type OfferingInfo } from './api';
 
@@ -16,35 +16,88 @@ const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
-  const [responseSongs, setResponseSongs] = useState<Song[]>([]);
+
+  // Initialize state directly from localStorage
+  const [selectedSongs, setSelectedSongs] = useState<Song[]>(() => {
+    const saved = localStorage.getItem('ppt_selectedSongs');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [responseSongs, setResponseSongs] = useState<Song[]>(() => {
+    const saved = localStorage.getItem('ppt_responseSongs');
+    return saved ? JSON.parse(saved) : [];
+  });
   
   const [date, setDate] = useState(() => {
+    const saved = localStorage.getItem('ppt_date');
+    if (saved) return saved;
     const today = new Date();
     const defaultDate = isSunday(today) ? today : nextSunday(today);
     return format(defaultDate, 'yyyy-MM-dd');
   });
-  const [speaker, setSpeaker] = useState('');
-  const [topic, setTopic] = useState('');
-  const [churchName, setChurchName] = useState('Blacktown Chinese Christian Church');
-  const [serviceName, setServiceName] = useState('English Service');
+  const [speaker, setSpeaker] = useState(() => localStorage.getItem('ppt_speaker') || '');
+  const [topic, setTopic] = useState(() => localStorage.getItem('ppt_topic') || '');
+  const [churchName, setChurchName] = useState(() => localStorage.getItem('ppt_churchName') || 'Blacktown Chinese Christian Church');
+  const [serviceName, setServiceName] = useState(() => localStorage.getItem('ppt_serviceName') || 'English Service');
 
-  const [bibleReadings, setBibleReadings] = useState<BibleReading[]>([]);
-  
-  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
-  const [offering, setOffering] = useState<OfferingInfo>({
-    account_name: 'Blacktown Chinese Christian Church',
-    account_number: '4216 50263',
-    bsb: '112 - 879',
-    reference: 'offering',
-    details: 'The offering box is available at the back of the hall'
+  const [bibleReadings, setBibleReadings] = useState<BibleReading[]>(() => {
+    const saved = localStorage.getItem('ppt_bibleReadings');
+    return saved ? JSON.parse(saved) : [];
   });
-  const [prayerPoints, setPrayerPoints] = useState<string[]>([]);
-  const [mingleText, setMingleText] = useState('Mingle time!');
+  
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>(() => {
+    const saved = localStorage.getItem('ppt_announcements');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [offering, setOffering] = useState<OfferingInfo>(() => {
+    const saved = localStorage.getItem('ppt_offering');
+    return saved ? JSON.parse(saved) : {
+      account_name: 'Blacktown Chinese Christian Church',
+      account_number: '4216 50263',
+      bsb: '112 - 879',
+      reference: 'offering',
+      details: 'The offering box is available at the back of the hall'
+    };
+  });
+  const [prayerPoints, setPrayerPoints] = useState<string[]>(() => {
+    const saved = localStorage.getItem('ppt_prayerPoints');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [mingleText, setMingleText] = useState(() => localStorage.getItem('ppt_mingleText') || 'Mingle time!');
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [translate, setTranslate] = useState(false);
-  const [language, setLanguage] = useState('Chinese (Simplified)');
+  const [translate, setTranslate] = useState(() => localStorage.getItem('ppt_translate') === 'true');
+  const [language, setLanguage] = useState(() => localStorage.getItem('ppt_language') || 'Chinese (Simplified)');
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem('ppt_date', date);
+    localStorage.setItem('ppt_speaker', speaker);
+    localStorage.setItem('ppt_topic', topic);
+    localStorage.setItem('ppt_churchName', churchName);
+    localStorage.setItem('ppt_serviceName', serviceName);
+    localStorage.setItem('ppt_selectedSongs', JSON.stringify(selectedSongs));
+    localStorage.setItem('ppt_responseSongs', JSON.stringify(responseSongs));
+    localStorage.setItem('ppt_bibleReadings', JSON.stringify(bibleReadings));
+    localStorage.setItem('ppt_announcements', JSON.stringify(announcements));
+    localStorage.setItem('ppt_offering', JSON.stringify(offering));
+    localStorage.setItem('ppt_prayerPoints', JSON.stringify(prayerPoints));
+    localStorage.setItem('ppt_mingleText', mingleText);
+    localStorage.setItem('ppt_translate', String(translate));
+    localStorage.setItem('ppt_language', language);
+  }, [date, speaker, topic, churchName, serviceName, selectedSongs, responseSongs, bibleReadings, announcements, offering, prayerPoints, mingleText, translate, language]);
+
+  const handleClearService = () => {
+    if (confirm('Are you sure you want to clear the entire service plan?')) {
+      setSelectedSongs([]);
+      setResponseSongs([]);
+      setSpeaker('');
+      setTopic('');
+      setBibleReadings([]);
+      setAnnouncements([]);
+      setPrayerPoints([]);
+      setMingleText('Mingle time!');
+    }
+  };
 
   // Abort Controller for cancelling requests
   const abortControllerRef = React.useRef<AbortController | null>(null);
@@ -202,7 +255,7 @@ const App: React.FC = () => {
             />
           </div>
 
-          {/* Middle Column: Song Selector & Additional Sections */}
+          {/* Middle Column: Song Selector & Service Content */}
           <div className="space-y-6">
             <SongSelector 
               filteredSongs={filteredSongs} 
@@ -220,7 +273,7 @@ const App: React.FC = () => {
               responseSongIds={responseSongs.map(s => s.id).filter(Boolean) as string[]}
             />
             
-            <AdditionalSections 
+            <ServiceContent 
               announcements={announcements}
               setAnnouncements={setAnnouncements}
               offering={offering}
@@ -244,6 +297,7 @@ const App: React.FC = () => {
               prayerPoints={prayerPoints}
               mingleText={mingleText}
               date={date}
+              onClear={handleClearService}
             />
           </div>
         </div>

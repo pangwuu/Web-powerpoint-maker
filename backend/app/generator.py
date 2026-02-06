@@ -446,21 +446,26 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
         append_song(prs, song, fonts['title'], fonts['song'], request.translate, request.language)
 
     # 7. Announcements & Tithing
-    create_title_slide('Announcements', '', prs, fonts['title'])
-    for ann in request.announcements:
-        if ann.content:
-            create_title_and_text_slide(ann.title, ann.content, prs, fonts['title'], fonts['song'])
-        else:
-            create_title_slide(ann.title, '', prs, fonts['title'])
+    valid_announcements = [ann for ann in request.announcements if ann.title.strip()]
+    if valid_announcements:
+        create_title_slide('Announcements', '', prs, fonts['title'])
+        for ann in valid_announcements:
+            if ann.content and ann.content.strip():
+                create_title_and_text_slide(ann.title.strip(), ann.content.strip(), prs, fonts['title'], fonts['song'])
+            else:
+                create_title_slide(ann.title.strip(), '', prs, fonts['title'])
 
     create_offering_slide(prs, fonts['title'], fonts['tithing'], request.offering)
     
-    create_title_slide('Prayer Points', '', prs, fonts['title'])
-    for point in request.prayer_points:
-        create_text_slide(point, prs, fonts['song'])
+    valid_prayer_points = [p.strip() for p in request.prayer_points if p.strip()]
+    if valid_prayer_points:
+        create_title_slide('Prayer Points', '', prs, fonts['title'])
+        for point in valid_prayer_points:
+            create_text_slide(point, prs, fonts['song'])
     
     # 8. Mingle
-    create_title_slide(request.mingle_text, '', prs, fonts['title'])
+    if request.mingle_text and request.mingle_text.strip():
+        create_title_slide(request.mingle_text.strip(), '', prs, fonts['title'])
 
     # Output
     output = io.BytesIO()

@@ -13,6 +13,7 @@ interface ServiceOrderProps {
   prayerPoints: string[];
   mingleText: string;
   date: string;
+  onClear: () => void;
 }
 
 export const ServiceOrder: React.FC<ServiceOrderProps> = ({
@@ -25,6 +26,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   prayerPoints,
   mingleText,
   date,
+  onClear,
 }) => {
   const [draggedIndex, setDraggedIndex] = useState<{ index: number; type: 'worship' | 'response' } | null>(null);
 
@@ -77,7 +79,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
         >
           <div className="flex items-center gap-2 overflow-hidden">
             <GripVertical size={14} className="text-gray-400 shrink-0" />
-            <span className="truncate text-sm">{song.title}</span>
+            <span className="truncate text-sm font-medium">{song.title}</span>
           </div>
           <button 
             onClick={(e) => { e.stopPropagation(); removeSong(i); }}
@@ -92,15 +94,25 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
 
   const formatReadings = () => {
     if (readings.length === 0) return 'TBA';
-    return readings.map(r => r.reference ? `${r.reference} (${r.version})` : '').filter(Boolean).join('; ');
+    const text = readings.map(r => r.reference ? `${r.reference} (${r.version})` : '').filter(Boolean).join('; ');
+    return text || 'TBA';
   };
 
   return (
     <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 sticky top-8">
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-gray-800">
-        <Star size={20} className="text-yellow-500" />
-        Service Preview
-      </h2>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-800">
+          <Star size={20} className="text-yellow-500" />
+          Service Preview
+        </h2>
+        <button 
+          onClick={onClear}
+          className="text-xs font-medium text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50"
+        >
+          <Trash2 size={12} />
+          Clear All
+        </button>
+      </div>
       
       <div className="space-y-5">
         {/* Bulletin slide */}
