@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Music, BookOpen, Trash2, GripVertical, Megaphone, CreditCard, Heart, Coffee, Star, Pin, Wine } from 'lucide-react';
-import { type Song, type BibleReading, type AnnouncementItem } from '../api';
+import { type Song, type BibleReading, type AnnouncementItem, type PrayerPoint } from '../api';
 import { getDate } from 'date-fns';
 
 interface ServiceOrderProps {

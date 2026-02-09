@@ -10,7 +10,7 @@ import { SongEditor } from './components/SongEditor';
 import { ServiceContent } from './components/ServiceContent';
 import { BiblePassage } from './components/BiblePassage';
 import { ScrollPrompt } from './components/ScrollPrompt';
-import { type AnnouncementItem, type OfferingInfo } from './api';
+import { type AnnouncementItem, type OfferingInfo, type PrayerPoint } from './api';
 
 const App: React.FC = () => {
   const [songs, setSongs] = useState<Song[]>([]);
