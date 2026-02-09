@@ -240,7 +240,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-4 md:p-8 font-sans pb-24 md:pb-8 transition-colors duration-300">
+    <div className="min-h-screen p-4 md:p-8 font-sans pb-24 md:pb-8">
       <div className="max-w-6xl mx-auto">
         <Header 
           onGenerate={handleGenerate} 

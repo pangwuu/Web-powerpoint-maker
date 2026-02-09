@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Music, BookOpen, Trash2, GripVertical, Megaphone, CreditCard, Heart, Coffee, Star, Pin, Wine } from 'lucide-react';
+import React from 'react';
+import { Music, BookOpen, Trash2, ChevronUp, ChevronDown, Megaphone, CreditCard, Heart, Coffee, Star, Pin, Wine } from 'lucide-react';
 import { type Song, type BibleReading, type AnnouncementItem, type PrayerPoint } from '../api';
 import { getDate } from 'date-fns';
 
@@ -28,8 +28,6 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
   date,
   onClear,
 }) => {
-  const [draggedIndex, setDraggedIndex] = useState<{ index: number; type: 'worship' | 'response' } | null>(null);
-
   const isCommunionSunday = () => {
     try {
       const d = new Date(date);
@@ -40,25 +38,18 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
     }
   };
 
-  const handleDragStart = (index: number, type: 'worship' | 'response') => {
-    setDraggedIndex({ index, type });
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault(); // Necessary to allow dropping
-  };
-
-  const handleDrop = (dropIndex: number, type: 'worship' | 'response') => {
-    if (!draggedIndex || draggedIndex.type !== type) return;
-
-    const list = type === 'worship' ? [...worshipSongs] : [...responseSongs];
+  const handleMoveSong = (index: number, direction: 'up' | 'down', type: 'worship' | 'response') => {
+    const list = type === 'worship' ? worshipSongs : responseSongs;
     const setList = type === 'worship' ? setWorshipSongs : setResponseSongs;
 
-    const [draggedItem] = list.splice(draggedIndex.index, 1);
-    list.splice(dropIndex, 0, draggedItem);
+    if ((direction === 'up' && index === 0) || (direction === 'down' && index === list.length - 1)) {
+      return;
+    }
 
-    setList(list);
-    setDraggedIndex(null);
+    const next = [...list];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+    setList(next);
   };
 
   const renderList = (songs: Song[], type: 'worship' | 'response', removeSong: (idx: number) => void) => (
@@ -67,26 +58,39 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
       {songs.map((song, i) => (
         <div
           key={`${song.title}-${i}`}
-          draggable
-          onDragStart={() => handleDragStart(i, type)}
-          onDragOver={handleDragOver}
-          onDrop={() => handleDrop(i, type)}
-          className={`flex items-center justify-between p-2 rounded-md border cursor-move transition-colors ${
+          className={`flex items-center justify-between p-2 rounded-md border transition-colors group ${
             type === 'worship' 
               ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300 border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30' 
               : 'bg-purple-50 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300 border-purple-100 dark:border-purple-800 hover:bg-purple-100 dark:hover:bg-purple-900/30'
-          } ${draggedIndex?.index === i && draggedIndex.type === type ? 'opacity-50' : ''}`}
+          }`}
         >
-          <div className="flex items-center gap-2 overflow-hidden">
-            <GripVertical size={14} className="text-gray-400 dark:text-gray-500 shrink-0" />
+          <div className="flex items-center gap-2 overflow-hidden flex-1">
             <span className="truncate text-sm font-medium">{song.title}</span>
           </div>
-          <button 
-            onClick={(e) => { e.stopPropagation(); removeSong(i); }}
-            className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-full transition-colors"
-          >
-            <Trash2 size={14} className="text-red-400 hover:text-red-600 dark:hover:text-red-400" />
-          </button>
+          <div className="flex items-center gap-0.5 opacity-60 group-hover:opacity-100 transition-opacity">
+            <button
+              type="button"
+              onClick={() => handleMoveSong(i, 'up', type)}
+              disabled={i === 0}
+              className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-full transition-colors disabled:opacity-0"
+            >
+              <ChevronUp size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleMoveSong(i, 'down', type)}
+              disabled={i === songs.length - 1}
+              className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-full transition-colors disabled:opacity-0"
+            >
+              <ChevronDown size={16} />
+            </button>
+            <button 
+              onClick={(e) => { e.stopPropagation(); removeSong(i); }}
+              className="p-1 hover:bg-white dark:hover:bg-gray-800 rounded-full transition-colors ml-1"
+            >
+              <Trash2 size={14} className="text-red-400 hover:text-red-600 dark:hover:text-red-400" />
+            </button>
+          </div>
         </div>
       ))}
     </div>

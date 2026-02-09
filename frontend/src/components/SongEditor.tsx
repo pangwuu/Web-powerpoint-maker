@@ -110,27 +110,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <div className="flex justify-between items-end mb-1">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Song Title</label>
-                <button
-                  type="button"
-                  onClick={handleSearch}
-                  disabled={isSearching || !title}
-                  className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                >
-                  {isSearching ? (
-                    <>
-                      <Loader2 size={14} className="animate-spin" />
-                      Searching...
-                    </>
-                  ) : (
-                    <>
-                      <Search size={14} />
-                      Search & Auto-fill
-                    </>
-                  )}
-                </button>
-              </div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Song Title</label>
               <input
                 type="text"
                 required
@@ -140,17 +120,40 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
                 placeholder="e.g. Amazing Grace"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artist (Optional)</label>
-              <input
-                type="text"
-                value={artist}
-                onChange={(e) => setArtist(e.target.value)}
-                className="w-full p-2 border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
-                placeholder="e.g. Chris Tomlin"
-              />
-            </div>
+            <div className="md:col-span-2 flex items-end gap-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Artist (Optional)</label>
+                <input
+                  type="text"
+                  value={artist}
+                  onChange={(e) => setArtist(e.target.value)}
+                  className="w-full p-2 border dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. Chris Tomlin"
+                />
+              </div>
 
+            </div >
+            <div className='md:col-span-2 w-full flex justify-center items-center'>
+              <button
+                type="button"
+                onClick={handleSearch}
+                disabled={isSearching || !title}
+                className="flex items-center gap-1.5 h-[42px] px-4 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap"
+              >
+                {isSearching ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Searching...
+                  </>
+                ) : (
+                  <>
+                    <Search size={14} />
+                    Search & Auto-fill lyrics
+                  </>
+                )}
+              </button>
+            </div>
+             
           </div>
 
           <div>
@@ -233,6 +236,17 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
               ))}
             </div>
           </div>
+          
+          <div className="flex w-full justify-center items-center">
+            <button
+                type="button"
+                onClick={handleAddSection}
+                className="flex items-center gap-1.5 h-[42px] px-4 text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap"
+              >
+                <Plus size={16} /> Add new section
+              </button>
+          </div>
+
         </form>
 
         <div className="p-6 border-t dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl flex justify-end gap-3 transition-colors duration-300">
