@@ -12,18 +12,14 @@
   }
 
   html {
+    @apply m-0 p-0 h-full scroll-smooth;
+    /* This ensures the background color fills the entire browser window */
     @apply bg-gray-50 dark:bg-gray-950;
   }
 
-  html,
   body {
-    @apply m-0 p-0 min-h-screen;
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-  }
-
-  body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased;
+    @apply m-0 p-0 min-h-full text-gray-900 dark:text-gray-100 antialiased font-sans;
+    /* Propagate the background to the body as well */
+    @apply bg-gray-50 dark:bg-gray-950;
   }
 }
