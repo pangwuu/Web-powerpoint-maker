@@ -26,6 +26,10 @@ class AnnouncementItem(BaseModel):
     title: str
     content: Optional[str] = None
 
+class PrayerPoint(BaseModel):
+    title: str
+    content: Optional[str] = None
+
 class OfferingInfo(BaseModel):
     account_name: str = "Blacktown Chinese Christian Church"
     account_number: str = "4216 50263"
@@ -44,7 +48,7 @@ class GenerateRequest(BaseModel):
     response_songs: List[Song]
     announcements: List[AnnouncementItem] = []
     offering: OfferingInfo = OfferingInfo()
-    prayer_points: List[str] = []
+    prayer_points: List[PrayerPoint] = []
     mingle_text: str = "Mingle time!"
     template_name: Optional[str] = "medium"
     translate: bool = False

@@ -53,7 +53,7 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
 
   const showToast = (title: string, type: 'worship' | 'response') => {
     setToast({ message: `"${title}" added as a ${type} song`, type });
-    setTimeout(() => setToast(null), 2000);
+    setTimeout(() => setToast(null), 1000);
   };
 
   const handleAddWorship = (song: Song) => {
@@ -84,9 +84,9 @@ export const SongSelector: React.FC<SongSelectorProps> = ({
 
             toast.type === 'worship' 
 
-              ? 'bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300' 
+              ? 'bg-blue-50 dark:bg-blue-900 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300' 
 
-              : 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
+              : 'bg-purple-50 dark:bg-purple-900 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300'
 
           }`}>
 

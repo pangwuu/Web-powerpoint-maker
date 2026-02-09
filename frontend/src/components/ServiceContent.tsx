@@ -1,14 +1,14 @@
 import React from 'react';
 import { Megaphone, CreditCard, Heart, Coffee, Plus, Trash2 } from 'lucide-react';
-import { type AnnouncementItem, type OfferingInfo } from '../api';
+import { type AnnouncementItem, type OfferingInfo, type PrayerPoint } from '../api';
 
 interface ServiceContentProps {
   announcements: AnnouncementItem[];
   setAnnouncements: (ann: AnnouncementItem[]) => void;
   offering: OfferingInfo;
   setOffering: (offering: OfferingInfo) => void;
-  prayerPoints: string[];
-  setPrayerPoints: (points: string[]) => void;
+  prayerPoints: PrayerPoint[];
+  setPrayerPoints: (points: PrayerPoint[]) => void;
   mingleText: string;
   setMingleText: (text: string) => void;
 }
@@ -60,10 +60,10 @@ export const ServiceContent: React.FC<ServiceContentProps> = ({
   const removeAnnouncement = (i: number) => setAnnouncements(announcements.filter((_, idx) => idx !== i));
 
   // Prayer Handlers
-  const addPrayerPoint = () => setPrayerPoints([...prayerPoints, '']);
-  const updatePrayerPoint = (i: number, val: string) => {
+  const addPrayerPoint = () => setPrayerPoints([...prayerPoints, { title: '', content: '' }]);
+  const updatePrayerPoint = (i: number, field: keyof PrayerPoint, val: string) => {
     const next = [...prayerPoints];
-    next[i] = val;
+    next[i] = { ...next[i], [field]: val };
     setPrayerPoints(next);
   };
   const removePrayerPoint = (i: number) => setPrayerPoints(prayerPoints.filter((_, idx) => idx !== i));
@@ -162,17 +162,29 @@ export const ServiceContent: React.FC<ServiceContentProps> = ({
         onAdd={addPrayerPoint}
       >
         {prayerPoints.map((point, i) => (
-          <div key={i} className="flex gap-2 group">
-            <input 
-              type="text" 
-              value={point}
-              onChange={e => updatePrayerPoint(i, e.target.value)}
-              placeholder={`Point ${i + 1}`}
-              className="flex-1 p-2 border dark:border-gray-700 rounded-md text-sm bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-rose-500 outline-none"
-            />
-            <button onClick={() => removePrayerPoint(i)} className="p-2 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors">
+          <div key={i} className="space-y-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg relative group border border-transparent dark:border-gray-800">
+            <div className='flex gap-2 group'>
+              <input 
+                type="text" 
+                value={point.title}
+                onChange={e => updatePrayerPoint(i, 'title', e.target.value)}
+                placeholder="Prayer Point"
+                className="w-full pr-8 p-2 border-b border-transparent bg-transparent focus:border-rose-500 dark:focus:border-rose-400 outline-none font-bold text-sm dark:text-gray-100"
+              />
+              <button 
+                onClick={() => removePrayerPoint(i)}
+                className="text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+              >
               <Trash2 size={18} />
             </button>
+            </div>
+
+            <textarea 
+              value={point.content}
+              onChange={e => updatePrayerPoint(i, 'content', e.target.value)}
+              placeholder="Details (optional)"
+              className="w-full p-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded text-sm h-20 focus:ring-1 focus:ring-rose-500 dark:focus:ring-rose-400 outline-none dark:text-gray-100"
+            />
           </div>
         ))}
       </Section>

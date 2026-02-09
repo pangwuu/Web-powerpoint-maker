@@ -12,7 +12,7 @@ from functools import cache
 import io
 
 # Import our models and helpers
-from .models import Song, SongSection, GenerateRequest, AnnouncementItem, OfferingInfo
+from .models import Song, SongSection, GenerateRequest, AnnouncementItem, OfferingInfo, PrayerPoint
 from .ai_translate import translate_with_gemini, translate_text_gemini
 from .bible import get_correct_copyright_message
 
@@ -457,11 +457,14 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
 
     create_offering_slide(prs, fonts['title'], fonts['tithing'], request.offering)
     
-    valid_prayer_points = [p.strip() for p in request.prayer_points if p.strip()]
+    valid_prayer_points = [p for p in request.prayer_points if p.title.strip()]
     if valid_prayer_points:
         create_title_slide('Prayer Points', '', prs, fonts['title'])
         for point in valid_prayer_points:
-            create_text_slide(point, prs, fonts['song'])
+            if point.content and point.content.strip():
+                create_title_and_text_slide(point.title.strip(), point.content.strip(), prs, fonts['title'], fonts['song'])
+            else:
+                create_title_slide(point.title.strip(), '', prs, fonts['title'])
     
     # 8. Mingle
     if request.mingle_text and request.mingle_text.strip():

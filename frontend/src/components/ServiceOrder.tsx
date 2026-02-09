@@ -10,7 +10,7 @@ interface ServiceOrderProps {
   setResponseSongs: (songs: Song[]) => void;
   readings: BibleReading[];
   announcements: AnnouncementItem[];
-  prayerPoints: string[];
+  prayerPoints: PrayerPoint[];
   mingleText: string;
   date: string;
   onClear: () => void;
@@ -199,7 +199,7 @@ export const ServiceOrder: React.FC<ServiceOrderProps> = ({
               <ul className="space-y-1">
                 {prayerPoints.map((point, i) => (
                   <li key={i} className="text-sm text-gray-700 dark:text-gray-300 truncate pl-2 border-l-2 border-rose-200 dark:border-rose-800">
-                    {point || 'Empty point'}
+                    {point.title || 'Untitled Prayer'}
                   </li>
                 ))}
               </ul>

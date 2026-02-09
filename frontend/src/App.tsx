@@ -64,7 +64,7 @@ const App: React.FC = () => {
       details: 'The offering box is available at the back of the hall'
     };
   });
-  const [prayerPoints, setPrayerPoints] = useState<string[]>(() => {
+  const [prayerPoints, setPrayerPoints] = useState<PrayerPoint[]>(() => {
     const saved = localStorage.getItem('ppt_prayerPoints');
     return saved ? JSON.parse(saved) : [];
   });

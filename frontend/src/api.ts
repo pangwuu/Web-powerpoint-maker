@@ -25,6 +25,11 @@ export interface AnnouncementItem {
   content?: string;
 }
 
+export interface PrayerPoint {
+  title: string;
+  content?: string
+}
+
 export interface OfferingInfo {
   account_name: string;
   account_number: string;
@@ -44,7 +49,7 @@ export interface GenerateRequest {
   response_songs: Song[];
   announcements: AnnouncementItem[];
   offering: OfferingInfo;
-  prayer_points: string[];
+  prayer_points: PrayerPoint[];
   mingle_text: string;
   template_name: string;
   translate: boolean;

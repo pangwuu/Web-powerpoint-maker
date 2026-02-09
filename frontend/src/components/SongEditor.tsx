@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api, type Song, type SongSection } from '../api';
-import { Plus, Trash2, X, Search, Loader2 } from 'lucide-react';
+import { Plus, Trash2, X, Search, Loader2, Copy, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface SongEditorProps {
   song: Song | null;
@@ -13,31 +13,53 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
   const [ccliNumber, setCcliNumber] = useState('');
-  const [sections, setSections] = useState<SongSection[]>([]);
+  const [sections, setSections] = useState<(SongSection & { id: string })[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [lastMovedIndex, setLastMovedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (song) {
       setTitle(song.title);
       setArtist(song.artist || '');
       setCcliNumber(song.ccli_number || '');
-      setSections(song.sections);
+      setSections(song.sections.map(s => ({ ...s, id: Math.random().toString(36).substr(2, 9) })));
     } else {
       setTitle('');
       setArtist('');
       setCcliNumber('');
-      setSections([{ label: 'Verse 1', content: '' }]);
+      setSections([{ id: Math.random().toString(36).substr(2, 9), label: 'Verse 1', content: '' }]);
     }
   }, [song, isOpen]);
 
   if (!isOpen) return null;
 
   const handleAddSection = () => {
-    setSections([...sections, { label: 'Verse', content: '' }]);
+    setSections([...sections, { id: Math.random().toString(36).substr(2, 9), label: 'Verse', content: '' }]);
   };
 
   const handleRemoveSection = (index: number) => {
     setSections(sections.filter((_, i) => i !== index));
+  };
+
+  const handleDuplicateSection = (index: number) => {
+    const newSections = [...sections];
+    const newSection = { ...sections[index], id: Math.random().toString(36).substr(2, 9) };
+    newSections.splice(index + 1, 0, newSection);
+    setSections(newSections);
+    setLastMovedIndex(index + 1);
+    setTimeout(() => setLastMovedIndex(null), 1000);
+  };
+
+  const handleMoveSection = (index: number, direction: 'up' | 'down') => {
+    if ((direction === 'up' && index === 0) || (direction === 'down' && index === sections.length - 1)) {
+      return;
+    }
+    const newSections = [...sections];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+    setSections(newSections);
+    setLastMovedIndex(targetIndex);
+    setTimeout(() => setLastMovedIndex(null), 400);
   };
 
   const handleSectionChange = (index: number, field: keyof SongSection, value: string) => {
@@ -53,7 +75,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
       const result = await api.searchSongLyrics(title, artist);
       setTitle(result.title || '');
       setArtist(result.artist || '');
-      setSections(result.sections || []);
+      setSections((result.sections || []).map(s => ({ ...s, id: Math.random().toString(36).substr(2, 9) })));
     } catch (error) {
       console.error('Failed to search lyrics:', error);
       alert('Failed to find lyrics. Please try again or enter manually.');
@@ -69,7 +91,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
       title,
       artist,
       ccli_number: ccliNumber,
-      sections,
+      sections: sections.map(({ id, ...rest }) => rest),
     });
   };
 
@@ -145,7 +167,14 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
             
             <div className="space-y-4">
               {sections.map((section, index) => (
-                <div key={index} className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 relative group">
+                <div 
+                  key={section.id} 
+                  className={`p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border transition-all duration-300 relative group ${
+                    lastMovedIndex === index 
+                      ? 'border-blue-500 ring-2 ring-blue-500/20 scale-[1.01] bg-blue-50/50 dark:bg-blue-900/10' 
+                      : 'border-gray-200 dark:border-gray-700'
+                  }`}
+                >
                   <div className="flex gap-4 mb-2">
                     <div className="w-1/3">
                       <input
@@ -156,11 +185,37 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
                         placeholder="Label (e.g. Verse 1)"
                       />
                     </div>
-                    <div className="flex-1 text-right">
-                       <button
+                    <div className="flex-1 flex justify-end gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSection(index, 'up')}
+                        disabled={index === 0}
+                        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition-all active:scale-90 disabled:opacity-0"
+                        title="Move Up"
+                      >
+                        <ChevronUp size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveSection(index, 'down')}
+                        disabled={index === sections.length - 1}
+                        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition-all active:scale-90 disabled:opacity-0"
+                        title="Move Down"
+                      >
+                        <ChevronDown size={18} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDuplicateSection(index)}
+                        className="text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1.5 transition-all active:scale-90"
+                        title="Duplicate Section"
+                      >
+                        <Copy size={18} />
+                      </button>
+                      <button
                         type="button"
                         onClick={() => handleRemoveSection(index)}
-                        className="text-red-400 dark:text-red-600 hover:text-red-600 dark:hover:text-red-400 p-1 transition-colors"
+                        className="text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 p-1.5 transition-all active:scale-90"
                         title="Remove Section"
                       >
                         <Trash2 size={18} />
@@ -171,7 +226,7 @@ export const SongEditor: React.FC<SongEditorProps> = ({ song, onSave, onCancel, 
                     required
                     value={section.content}
                     onChange={(e) => handleSectionChange(index, 'content', e.target.value)}
-                    className="w-full p-2 border dark:border-gray-700 rounded-md h-24 font-mono text-sm bg-white dark:bg-gray-800 dark:text-gray-100 outline-none focus:ring-1 focus:ring-blue-500"
+                    className="w-full p-2 border dark:border-gray-700 rounded-md h-24 font-mono text-sm bg-white dark:bg-gray-800 dark:text-gray-100 outline-none focus:ring-1 focus:ring-blue-500 transition-all"
                     placeholder="Lyrics..."
                   />
                 </div>
