@@ -447,8 +447,8 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
 
     # 7. Announcements & Tithing
     valid_announcements = [ann for ann in request.announcements if ann.title.strip()]
+    create_title_slide('Announcements', '', prs, fonts['title'])
     if valid_announcements:
-        create_title_slide('Announcements', '', prs, fonts['title'])
         for ann in valid_announcements:
             if ann.content and ann.content.strip():
                 create_title_and_text_slide(ann.title.strip(), ann.content.strip(), prs, fonts['title'], fonts['song'])
@@ -458,8 +458,8 @@ def generate_powerpoint(request: GenerateRequest) -> io.BytesIO:
     create_offering_slide(prs, fonts['title'], fonts['tithing'], request.offering)
     
     valid_prayer_points = [p for p in request.prayer_points if p.title.strip()]
+    create_title_slide('Prayer Points', '', prs, fonts['title'])
     if valid_prayer_points:
-        create_title_slide('Prayer Points', '', prs, fonts['title'])
         for point in valid_prayer_points:
             if point.content and point.content.strip():
                 create_title_and_text_slide(point.title.strip(), point.content.strip(), prs, fonts['title'], fonts['song'])
