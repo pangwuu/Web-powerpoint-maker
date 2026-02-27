@@ -18,7 +18,6 @@ app = FastAPI(title="PPT Generator API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -40,6 +39,20 @@ async def create_song(song: Song):
     await db.songs.insert_one(song_dict)
     return song
 
+@app.get("/songs/search")
+async def search_song_lyrics(title: str, artist: str = ""):
+    result = fetch_lyrics(title, artist)
+    if not result:
+        raise HTTPException(status_code=404, detail="Song not found on Genius")
+    
+    sections = structure_lyrics_with_gemini(result["lyrics"])
+    
+    return {
+        "title": result["title"],
+        "artist": result["artist"],
+        "sections": sections
+    }
+
 @app.put("/songs/{song_id}", response_model=Song)
 async def update_song(song_id: str, updated_song: Song):
     # Ensure ID matches
@@ -60,20 +73,6 @@ async def delete_song(song_id: str):
         raise HTTPException(status_code=404, detail="Song not found")
         
     return {"message": "Song deleted"}
-
-@app.get("/songs/search")
-async def search_song_lyrics(title: str, artist: str = ""):
-    result = fetch_lyrics(title, artist)
-    if not result:
-        raise HTTPException(status_code=404, detail="Song not found on Genius")
-    
-    sections = structure_lyrics_with_gemini(result["lyrics"])
-    
-    return {
-        "title": result["title"],
-        "artist": result["artist"],
-        "sections": sections
-    }
 
 @app.get("/bible")
 async def get_bible_passage(ref: str, version: str = "NIV"):
