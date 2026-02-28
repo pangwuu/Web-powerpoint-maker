@@ -1,4 +1,5 @@
 from google import genai
+from google.genai import types
 import os
 from dotenv import load_dotenv
 from functools import cache
@@ -65,7 +66,7 @@ DO NOT PROVIDE ANY OTHER OUTPUTS OTHER THAN THE SONG LINES IN THE FORMAT ABOVE
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.5-flash-lite',
             contents=prompt
         )
         return response.text
@@ -81,7 +82,7 @@ def translate_text_gemini(text: str, target_language: str) -> Optional[str]:
             
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.5-flash-lite',
             contents=prompt
         )
         translated = response.text.strip()
@@ -92,48 +93,57 @@ def translate_text_gemini(text: str, target_language: str) -> Optional[str]:
         print(f"Gemini translation error: {e}")
         return None
 
-def structure_lyrics_with_gemini(raw_lyrics: str) -> List[dict]:
-    """
-    Uses Gemini to structure raw lyrics into a list of sections.
-    Attempts manual split first.
-    """
-    # 1. Try manual regex split first (Deterministic & Fast)
-    manual_sections = split_lyrics_manually(raw_lyrics)
-    if len(manual_sections) > 1:
-        return manual_sections
-
-    # 2. Fallback to AI for intelligent splitting (Probabilistic but Smart)
+def search_and_structure_lyrics_gemini(song: str, artist: str) -> dict | None:
     prompt = f'''
-You are a song lyrics processor. Your goal is to split raw lyrics into distinct sections (e.g., Verse 1, Chorus, Bridge, etc.).
+    Search for the lyrics of "{song}" by "{artist}". 
+    DO NOT MAKE UP LYRICS. If the song is not found, return a JSON object with a single key 'status': 'not_found'.
+    
+    Split the lyrics into distinct sections (e.g., Verse 1, Chorus).
+    Return a JSON object with exactly these keys: "title", "artist", and "sections".
+    "sections" should be an array of objects with "label" and "content".
 
-Even if there are no square brackets like [Verse 1], look for logical breaks like:
-- Labels at the start of lines (e.g. "Verse 1:", "Chorus -")
-- Large blocks of text separated by double newlines.
-
-Each section must have a clear "label" and "content".
-Return the result as a JSON array of objects.
-
-Raw lyrics:
-{raw_lyrics}
-
-ONLY RETURN THE JSON ARRAY. DO NOT PROVIDE ANY OTHER TEXT.
-'''
+    ONLY RETURN THE JSON. NO MARKDOWN PROSE.
+    '''
+    
+    # Properly define the grounding tool using the types from your snippet
+    grounding_tool = types.Tool(google_search=types.GoogleSearch())
 
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.5-flash-lite',
             contents=prompt,
-            config={
-                'response_mime_type': 'application/json',
-            }
+            config=types.GenerateContentConfig(
+                tools=[grounding_tool],
+                temperature=0.0,
+                # 'response_mime_type' removed because it's incompatible with tools
+            )
         )
+        
+        if not response.text:
+            return None
+
         import json
-        structured_data = json.loads(response.text)
-        if isinstance(structured_data, list) and len(structured_data) > 0:
-            return structured_data
-        return [{"label": "Lyrics", "content": raw_lyrics}]
+        
+        # 1. Clean up the response text (remove markdown code blocks if they exist)
+        raw_text = response.text.strip()
+        if "```json" in raw_text:
+            raw_text = raw_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in raw_text:
+            raw_text = raw_text.split("```")[1].split("```")[0].strip()
+
+        # 2. Parse the JSON
+        data = json.loads(raw_text)
+        
+        # 3. Handle the "not found" status
+        if isinstance(data, dict) and data.get('status') == 'not_found':
+            return None
+        
+        # 4. Final validation of structure
+        if isinstance(data, dict) and "sections" in data:
+            return data
+            
+        return None
+
     except Exception as e:
-        print(f"Lyrics structuring failed: {e}")
-        return [{"label": "Lyrics", "content": raw_lyrics}]
-
-
+        print(f"Lyrics search/structuring failed: {e}")
+        return None

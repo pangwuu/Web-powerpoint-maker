@@ -10,7 +10,7 @@ from .generator import generate_powerpoint
 from .bible import bible_passage_auto
 from .database import db
 from .fetch_lyrics import fetch_lyrics
-from .ai_translate import structure_lyrics_with_gemini
+from .ai_translate import search_and_structure_lyrics_gemini
 
 app = FastAPI(title="PPT Generator API")
 
@@ -41,16 +41,15 @@ async def create_song(song: Song):
 
 @app.get("/songs/search")
 async def search_song_lyrics(title: str, artist: str = ""):
-    result = fetch_lyrics(title, artist)
-    if not result:
-        raise HTTPException(status_code=404, detail="Song not found on Genius")
+    result = search_and_structure_lyrics_gemini(title, artist)
     
-    sections = structure_lyrics_with_gemini(result["lyrics"])
+    if not result:
+        raise HTTPException(status_code=404, detail="Song not found")
     
     return {
-        "title": result["title"],
-        "artist": result["artist"],
-        "sections": sections
+        "title": result.get("title", title),
+        "artist": result.get("artist", artist),
+        "sections": result.get("sections", [])
     }
 
 @app.put("/songs/{song_id}", response_model=Song)
