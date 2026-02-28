@@ -13,6 +13,32 @@ import { ScrollPrompt } from './components/ScrollPrompt';
 import { type AnnouncementItem, type OfferingInfo, type PrayerPoint } from './api';
 
 const App: React.FC = () => {
+  
+  // Refresh page automatically to allow backend to reboot if we leave the tab unattended
+  useEffect(() => {
+    let timer: number;
+
+    const resetTimer = () => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        window.location.reload();
+      }, 15 * 60 * 1000);
+    };
+
+    // Listen for activity to reset the 15-minute countdown
+    window.addEventListener('mousemove', resetTimer);
+    window.addEventListener('keydown', resetTimer);
+
+    // Initialise the first timer
+    resetTimer();
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('mousemove', resetTimer);
+      window.removeEventListener('keydown', resetTimer);
+    };
+  }, []);
+
   const [songs, setSongs] = useState<Song[]>([]);
   const [search, setSearch] = useState('');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
